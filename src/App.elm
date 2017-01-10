@@ -64,24 +64,94 @@ spinner =
 
 listItemNews : Html Msg
 listItemNews =
-    li [ class "ListItem" ]
-        [ div [ class "Item__title" ]
-            [ a [] [ text "Trello acquires Atlassian lol" ]
-            , text " "
-            , span [ class "Item__host" ] [ text "(theonion.com)" ]
+    li [ class "ListItem" ] itemContent
+
+
+itemContent : List (Html Msg)
+itemContent =
+    [ div [ class "Item__title" ]
+        [ a [] [ text "Trello acquires Atlassian lol" ]
+        , text " "
+        , span [ class "Item__host" ] [ text "(theonion.com)" ]
+        ]
+    , div [ class "Item__meta" ]
+        [ span [ class "Item__score" ] [ text "1582 points" ]
+        , text " "
+        , span [ class "Item__by" ]
+            [ a [] [ text "some dude" ]
             ]
-        , div [ class "Item__meta" ]
-            [ span [ class "Item__score" ] [ text "1582 points" ]
-            , text " "
-            , span [ class "Item__by" ]
-                [ a [] [ text "some dude" ]
-                ]
-            , text " "
-            , time [ class "Item__time" ] [ text "2 hours ago" ]
-            , text " | "
-            , a [] [ text " 133 comments" ]
+        , text " "
+        , time [ class "Item__time" ] [ text "2 hours ago" ]
+        , text " | "
+        , a [] [ text " 133 comments" ]
+        ]
+    ]
+
+
+itemDetail : Html Msg
+itemDetail =
+    div [ class "Item" ]
+        [ div [ class "Item__content" ] itemContent
+        , div [ class "Item__kids" ] commentsTree
+        ]
+
+
+collapsible : Html Msg
+collapsible =
+    span [ class "Comment__collapse" ] [ text "[+]" ]
+
+
+commentMetaDead : Html Msg
+commentMetaDead =
+    div [ class "Comment__meta" ]
+        [ collapsible
+        , text " "
+        , text " | (2 children"
+        , text ", "
+        , em [] [ text "5 new" ]
+        , text ")"
+        ]
+
+
+commentMeta : Html Msg
+commentMeta =
+    div [ class "Comment__meta" ]
+        [ collapsible
+        , text " "
+        , a [ class "Comment__user" ] [ text "some dudette" ]
+        , time [] [ text "5 hours ago" ]
+        , text " | "
+        , a [] [ text "link" ]
+        ]
+
+
+commentText : Html Msg
+commentText =
+    div [ class "Comment__text" ]
+        [ div []
+            [ text "This is depressing. Trello is a beloved software for a lot of people. It's sad that Trello decided to sell off to Atlassian. I can't believe the same company that makes Jira is going to run Trello. SourceTree is the only software that they make that doesn't suck."
+            ]
+        , p []
+            [ a [] [ text "reply" ]
             ]
         ]
+
+
+singleComment : Html Msg
+singleComment =
+    div [ class "Comment Comment--level0" ]
+        [ div [ class "Comment__content" ]
+            [ commentMetaDead
+            , commentMeta
+            , commentText
+            ]
+        , div [ class "Comment__kids" ] []
+        ]
+
+
+commentsTree : List (Html Msg)
+commentsTree =
+    [ singleComment ]
 
 
 mainContent : Html Msg
@@ -94,6 +164,7 @@ mainContent =
             , listItemNews
             ]
         , paginator
+        , itemDetail
         ]
 
 
