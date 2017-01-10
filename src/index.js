@@ -19,7 +19,9 @@ var elmApp = Elm.Main.embed(root);
 
 elmApp.ports.firebaseOut.subscribe(function(channel) {
   db.ref('/v0/' + channel).on('value', function(data) {
-    // console.log(data.val())
-    elmApp.ports.firebaseIn.send(data.val()[0])
+    elmApp.ports.firebaseIn.send({
+      channel: channel,
+      data: data.val()
+    })
   })
 })
