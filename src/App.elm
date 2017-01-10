@@ -28,9 +28,73 @@ subscriptions model =
     Sub.none
 
 
+paginator : Html Msg
+paginator =
+    div [ class "Paginator" ]
+        [ span [ class "Paginator__prev" ]
+            [ a [] [ text "Prev" ]
+            ]
+        , text " | "
+        , span [ class "Paginator__next" ]
+            [ a [] [ text "More" ]
+            ]
+        ]
+
+
+listItemLoading : Html Msg
+listItemLoading =
+    li [ class "ListItem ListItem--loading" ]
+        [ spinner
+        ]
+
+
+spinnerBouncer : Html Msg
+spinnerBouncer =
+    div [ class "bounce1", style [ ( "width", "6px" ), ( "height", "6px" ) ] ] []
+
+
+spinner : Html Msg
+spinner =
+    div [ class "Spinner" ]
+        [ spinnerBouncer
+        , spinnerBouncer
+        , spinnerBouncer
+        ]
+
+
+listItemNews : Html Msg
+listItemNews =
+    li [ class "ListItem" ]
+        [ div [ class "Item__title" ]
+            [ a [] [ text "Trello acquires Atlassian lol" ]
+            , text " "
+            , span [ class "Item__host" ] [ text "(theonion.com)" ]
+            ]
+        , div [ class "Item__meta" ]
+            [ span [ class "Item__score" ] [ text "1582 points" ]
+            , text " "
+            , span [ class "Item__by" ]
+                [ a [] [ text "some dude" ]
+                ]
+            , text " "
+            , time [ class "Item__time" ] [ text "2 hours ago" ]
+            , text " | "
+            , a [] [ text " 133 comments" ]
+            ]
+        ]
+
+
 mainContent : Html Msg
 mainContent =
-    div [] []
+    div [ class "Items" ]
+        [ ol [ class "Items__list" ]
+            [ listItemLoading
+            , listItemNews
+            , listItemNews
+            , listItemNews
+            ]
+        , paginator
+        ]
 
 
 view : Model -> Html Msg
