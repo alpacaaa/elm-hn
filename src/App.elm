@@ -2,20 +2,28 @@ module App exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, style, src, width, height, alt)
+import Http
+import Types exposing (Story)
+import Api
 
 
 type alias Model =
-    { message : String
+    { stories : List Story
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    { message = "Your Elm App is working!" } ! []
+    let
+        fetchTopStories =
+            Http.send FetchHNTopStories Api.fetchTopStories
+    in
+        { stories = [] } ! [ fetchTopStories ]
 
 
 type Msg
     = NoOp
+    | FetchHNTopStories (Result Http.Error (List Story))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
