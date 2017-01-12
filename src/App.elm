@@ -1,7 +1,8 @@
 module App exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style, src, width, height, alt, href)
+import Html.Events
+import Html.Attributes exposing (class, style, src, width, height, alt)
 import Date
 import Time
 import Task
@@ -10,6 +11,8 @@ import Types exposing (Story)
 import Api
 import Erl as Url
 import Date.Distance
+import Navigation
+import Json.Decode
 
 
 type alias Model =
@@ -22,8 +25,8 @@ type alias Context =
     { now : Time.Time }
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Navigation.Location -> ( Model, Cmd Msg )
+init location =
     let
         currentTime =
             Task.perform CurrentTime Time.now
@@ -34,10 +37,30 @@ init =
         { stories = [], now = 0 } ! [ currentTime, fetchTopStories ]
 
 
+href : String -> List (Html.Attribute Msg)
+href path =
+    [ Html.Attributes.href path
+    , Html.Events.onWithOptions
+        "click"
+        { stopPropagation = True, preventDefault = True }
+        (Json.Decode.map (\_ -> Go path) Json.Decode.value)
+    ]
+
+
+onLocationChange : Navigation.Location -> Msg
+onLocationChange loc =
+    let
+        _ =
+            Debug.log "location changed" loc
+    in
+        NoOp
+
+
 type Msg
     = NoOp
     | FetchHNTopStories (Result Http.Error (List Story))
     | CurrentTime Time.Time
+    | Go String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -55,6 +78,9 @@ update msg model =
                     Debug.log "request blew up" err
             in
                 model ! []
+
+        Go path ->
+            ( model, Navigation.newUrl path )
 
         -- TODO
         _ ->
@@ -93,7 +119,7 @@ renderCommentsCount id comments =
             else
                 toString comments ++ " comments"
     in
-        a [ href (linkToStory id) ] [ text str ]
+        a (href (linkToStory id)) [ text str ]
 
 
 emptyDiv : Html Msg
@@ -163,8 +189,12 @@ storyTitle story =
     let
         url =
             Maybe.withDefault (linkToStory story.id) story.url
+
+        link =
+            Maybe.map (\external -> [ Html.Attributes.href external ]) story.url
+                |> Maybe.withDefault (href url)
     in
-        a [ href url ] [ text story.title ]
+        a link [ text story.title ]
 
 
 itemContent : Context -> Story -> List (Html Msg)
