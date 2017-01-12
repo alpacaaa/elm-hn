@@ -9,5 +9,6 @@ type alias Story =
     , title : String
     , score : Int
     , user : String
+    , time : Int
     , url : Maybe String
     }

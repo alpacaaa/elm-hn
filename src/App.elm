@@ -2,36 +2,52 @@ module App exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, style, src, width, height, alt)
+import Date
+import Time
+import Task
 import Http
 import Types exposing (Story)
 import Api
 import Erl as Url
+import Date.Distance
 
 
 type alias Model =
     { stories : List Story
+    , now : Time.Time
     }
+
+
+type alias Context =
+    { now : Time.Time }
 
 
 init : ( Model, Cmd Msg )
 init =
     let
+        currentTime =
+            Task.perform CurrentTime Time.now
+
         fetchTopStories =
             Http.send FetchHNTopStories Api.fetchTopStories
     in
-        { stories = [] } ! [ fetchTopStories ]
+        { stories = [], now = 0 } ! [ currentTime, fetchTopStories ]
 
 
 type Msg
     = NoOp
     | FetchHNTopStories (Result Http.Error (List Story))
+    | CurrentTime Time.Time
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        CurrentTime time ->
+            { model | now = time } ! []
+
         FetchHNTopStories (Ok stories) ->
-            { stories = stories } ! []
+            { model | stories = stories } ! []
 
         FetchHNTopStories (Err err) ->
             let
@@ -108,13 +124,25 @@ spinner =
         ]
 
 
-listItemNews : Story -> Html Msg
-listItemNews story =
-    li [ class "ListItem" ] <| itemContent story
+listItemNews : Context -> Story -> Html Msg
+listItemNews ctx story =
+    li [ class "ListItem" ] <| itemContent ctx story
 
 
-itemContent : Story -> List (Html Msg)
-itemContent story =
+formatTime : Time.Time -> Int -> String
+formatTime nowMs ms =
+    let
+        now =
+            Date.fromTime nowMs
+
+        date =
+            Date.fromTime <| toFloat ms * 1000
+    in
+        (Date.Distance.inWords date now) ++ " ago"
+
+
+itemContent : Context -> Story -> List (Html Msg)
+itemContent { now } story =
     [ div [ class "Item__title" ]
         [ a [] [ text story.title ]
         , text " "
@@ -127,17 +155,17 @@ itemContent story =
             [ a [] [ text story.user ]
             ]
         , text " "
-        , time [ class "Item__time" ] [ text "2 hours ago" ]
+        , time [ class "Item__time" ] [ text <| formatTime now story.time ]
         , text " | "
         , a [] [ text " 133 comments" ]
         ]
     ]
 
 
-itemDetail : Story -> Html Msg
-itemDetail story =
+itemDetail : Context -> Story -> Html Msg
+itemDetail ctx story =
     div [ class "Item" ]
-        [ div [ class "Item__content" ] <| itemContent story
+        [ div [ class "Item__content" ] <| itemContent ctx story
         , div [ class "Item__kids" ] commentsTree
         ]
 
@@ -200,12 +228,12 @@ commentsTree =
     [ singleComment ]
 
 
-mainContent : List Story -> Html Msg
-mainContent stories =
+mainContent : Context -> List Story -> Html Msg
+mainContent ctx stories =
     div [ class "Items" ]
         [ ol [ class "Items__list" ] <|
             List.map
-                listItemNews
+                (listItemNews ctx)
                 stories
         , paginator
           -- , itemDetail
@@ -236,7 +264,7 @@ view model =
                     ]
                 ]
             , div [ class "App__content" ]
-                [ mainContent model.stories
+                [ mainContent { now = model.now } model.stories
                 ]
             , div [ class "App__footer" ]
                 [ a [] [ text "elm-hn" ]
