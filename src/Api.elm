@@ -43,11 +43,6 @@ fieldToString { name, query } =
     name ++ " " ++ queryToString query
 
 
-kidsDecoder =
-    Decode.list (Decode.dict Decode.string)
-        |> Decode.map List.length
-
-
 storyDecoder : Decode.Decoder Story
 storyDecoder =
     Pipeline.decode Story
@@ -56,7 +51,7 @@ storyDecoder =
         |> Pipeline.required "score" Decode.int
         |> Pipeline.requiredAt [ "by", "id" ] Decode.string
         |> Pipeline.required "time" Decode.int
-        |> Pipeline.required "kids" kidsDecoder
+        |> Pipeline.required "descendants" (Decode.nullable Decode.int)
         |> Pipeline.required "url" (Decode.nullable Decode.string)
 
 
@@ -73,9 +68,7 @@ topStoriesQuery =
                 , field "by"
                     [ field "id" []
                     ]
-                , field "kids"
-                    [ field "id" []
-                    ]
+                , field "descendants" []
                 ]
             ]
         ]

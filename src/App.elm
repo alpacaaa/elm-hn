@@ -79,6 +79,18 @@ renderHost url =
         span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
 
 
+renderCommentsCount : Int -> Html Msg
+renderCommentsCount comments =
+    let
+        str =
+            if comments == 0 then
+                "discuss"
+            else
+                toString comments ++ " comments"
+    in
+        a [] [ text str ]
+
+
 emptyDiv : Html Msg
 emptyDiv =
     div [] []
@@ -156,8 +168,8 @@ itemContent { now } story =
             ]
         , text " "
         , time [ class "Item__time" ] [ text <| formatTime now story.time ]
-        , text " | "
-        , a [] [ text <| (toString story.comments) ++ " comments" ]
+        , maybeRender (\_ -> text " | ") story.comments
+        , maybeRender renderCommentsCount story.comments
         ]
     ]
 
