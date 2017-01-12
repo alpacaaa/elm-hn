@@ -1,7 +1,7 @@
 module App exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style, src, width, height, alt)
+import Html.Attributes exposing (class, style, src, width, height, alt, href)
 import Date
 import Time
 import Task
@@ -79,8 +79,13 @@ renderHost url =
         span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
 
 
-renderCommentsCount : Int -> Html Msg
-renderCommentsCount comments =
+linkToStory : String -> String
+linkToStory id =
+    "story/" ++ id
+
+
+renderCommentsCount : String -> Int -> Html Msg
+renderCommentsCount id comments =
     let
         str =
             if comments == 0 then
@@ -88,7 +93,7 @@ renderCommentsCount comments =
             else
                 toString comments ++ " comments"
     in
-        a [] [ text str ]
+        a [ href (linkToStory id) ] [ text str ]
 
 
 emptyDiv : Html Msg
@@ -153,10 +158,19 @@ formatTime nowMs ms =
         (Date.Distance.inWords date now) ++ " ago"
 
 
+storyTitle : Story -> Html Msg
+storyTitle story =
+    let
+        url =
+            Maybe.withDefault (linkToStory story.id) story.url
+    in
+        a [ href url ] [ text story.title ]
+
+
 itemContent : Context -> Story -> List (Html Msg)
 itemContent { now } story =
     [ div [ class "Item__title" ]
-        [ a [] [ text story.title ]
+        [ storyTitle story
         , text " "
         , maybeRender renderHost story.url
         ]
@@ -169,7 +183,7 @@ itemContent { now } story =
         , text " "
         , time [ class "Item__time" ] [ text <| formatTime now story.time ]
         , maybeRender (\_ -> text " | ") story.comments
-        , maybeRender renderCommentsCount story.comments
+        , maybeRender (renderCommentsCount story.id) story.comments
         ]
     ]
 
