@@ -5,6 +5,7 @@ import Html.Attributes exposing (class, style, src, width, height, alt)
 import Http
 import Types exposing (Story)
 import Api
+import Erl as Url
 
 
 type alias Model =
@@ -43,6 +44,30 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+renderHost : String -> Html Msg
+renderHost url =
+    let
+        hostParts =
+            Url.extractHost url
+                |> String.split "."
+
+        host =
+            String.join "." <| List.drop (List.length hostParts - 2) hostParts
+    in
+        span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
+
+
+emptyDiv : Html Msg
+emptyDiv =
+    div [] []
+
+
+maybeRender : (a -> Html Msg) -> Maybe a -> Html Msg
+maybeRender fn maybeValue =
+    Maybe.map fn maybeValue
+        |> Maybe.withDefault emptyDiv
 
 
 paginator : Html Msg
@@ -89,7 +114,7 @@ itemContent story =
     [ div [ class "Item__title" ]
         [ a [] [ text story.title ]
         , text " "
-        , span [ class "Item__host" ] [ text "(theonion.com)" ]
+        , maybeRender renderHost story.url
         ]
     , div [ class "Item__meta" ]
         [ span [ class "Item__score" ] [ text "1582 points" ]
