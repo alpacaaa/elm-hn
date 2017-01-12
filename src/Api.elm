@@ -48,6 +48,7 @@ storyDecoder =
     Pipeline.decode Story
         |> Pipeline.required "id" Decode.string
         |> Pipeline.required "title" Decode.string
+        |> Pipeline.required "score" Decode.int
         |> Pipeline.required "url" (Decode.nullable Decode.string)
 
 

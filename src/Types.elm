@@ -7,5 +7,6 @@ module Types
 type alias Story =
     { id : String
     , title : String
+    , score : Int
     , url : Maybe String
     }
