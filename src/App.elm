@@ -157,7 +157,7 @@ itemContent { now } story =
         , text " "
         , time [ class "Item__time" ] [ text <| formatTime now story.time ]
         , text " | "
-        , a [] [ text " 133 comments" ]
+        , a [] [ text <| (toString story.comments) ++ " comments" ]
         ]
     ]
 
