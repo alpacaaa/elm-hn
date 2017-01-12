@@ -49,6 +49,7 @@ storyDecoder =
         |> Pipeline.required "id" Decode.string
         |> Pipeline.required "title" Decode.string
         |> Pipeline.required "score" Decode.int
+        |> Pipeline.custom (Decode.at [ "by", "id" ] Decode.string)
         |> Pipeline.required "url" (Decode.nullable Decode.string)
 
 
@@ -61,6 +62,9 @@ topStoriesQuery =
                 , field "url" []
                 , field "title" []
                 , field "score" []
+                , field "by"
+                    [ field "id" []
+                    ]
                 , field "kids"
                     [ field "id" []
                     ]

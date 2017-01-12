@@ -34,7 +34,11 @@ update msg model =
             { stories = stories } ! []
 
         FetchHNTopStories (Err err) ->
-            model ! []
+            let
+                _ =
+                    Debug.log "request blew up" err
+            in
+                model ! []
 
         -- TODO
         _ ->
@@ -120,7 +124,7 @@ itemContent story =
         [ span [ class "Item__score" ] [ text <| (toString story.score) ++ " points" ]
         , text " "
         , span [ class "Item__by" ]
-            [ a [] [ text "some dude" ]
+            [ a [] [ text story.user ]
             ]
         , text " "
         , time [ class "Item__time" ] [ text "2 hours ago" ]
