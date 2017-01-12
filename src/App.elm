@@ -28,11 +28,16 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let
-        _ =
-            Debug.log "got message" msg
-    in
-        model ! []
+    case msg of
+        FetchHNTopStories (Ok stories) ->
+            { stories = stories } ! []
+
+        FetchHNTopStories (Err err) ->
+            model ! []
+
+        -- TODO
+        _ ->
+            model ! []
 
 
 subscriptions : Model -> Sub Msg
@@ -74,15 +79,15 @@ spinner =
         ]
 
 
-listItemNews : Html Msg
-listItemNews =
-    li [ class "ListItem" ] itemContent
+listItemNews : Story -> Html Msg
+listItemNews story =
+    li [ class "ListItem" ] <| itemContent story
 
 
-itemContent : List (Html Msg)
-itemContent =
+itemContent : Story -> List (Html Msg)
+itemContent story =
     [ div [ class "Item__title" ]
-        [ a [] [ text "Trello acquires Atlassian lol" ]
+        [ a [] [ text story.title ]
         , text " "
         , span [ class "Item__host" ] [ text "(theonion.com)" ]
         ]
@@ -100,10 +105,10 @@ itemContent =
     ]
 
 
-itemDetail : Html Msg
-itemDetail =
+itemDetail : Story -> Html Msg
+itemDetail story =
     div [ class "Item" ]
-        [ div [ class "Item__content" ] itemContent
+        [ div [ class "Item__content" ] <| itemContent story
         , div [ class "Item__kids" ] commentsTree
         ]
 
@@ -166,17 +171,15 @@ commentsTree =
     [ singleComment ]
 
 
-mainContent : Html Msg
-mainContent =
+mainContent : List Story -> Html Msg
+mainContent stories =
     div [ class "Items" ]
-        [ ol [ class "Items__list" ]
-            [ listItemLoading
-            , listItemNews
-            , listItemNews
-            , listItemNews
-            ]
+        [ ol [ class "Items__list" ] <|
+            List.map
+                listItemNews
+                stories
         , paginator
-        , itemDetail
+          -- , itemDetail
         ]
 
 
@@ -204,7 +207,7 @@ view model =
                     ]
                 ]
             , div [ class "App__content" ]
-                [ mainContent
+                [ mainContent model.stories
                 ]
             , div [ class "App__footer" ]
                 [ a [] [ text "elm-hn" ]
