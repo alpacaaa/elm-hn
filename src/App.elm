@@ -1,13 +1,7 @@
-port module App exposing (..)
+module App exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, style, src, width, height, alt)
-
-
-port firebaseOut : String -> Cmd msg
-
-
-port firebaseIn : (Firebase -> msg) -> Sub msg
 
 
 type alias Model =
@@ -15,26 +9,13 @@ type alias Model =
     }
 
 
-type alias Firebase =
-    { channel : String
-    , data : List Int
-    }
-
-
-decode : Firebase -> Msg
-decode input =
-    DoStuff input.channel
-
-
 init : ( Model, Cmd Msg )
 init =
-    { message = "Your Elm App is working!" } ! [ firebaseOut "topstories" ]
+    { message = "Your Elm App is working!" } ! []
 
 
 type Msg
     = NoOp
-    | FirebaseMsg Firebase
-    | DoStuff String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -48,7 +29,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    firebaseIn decode
+    Sub.none
 
 
 paginator : Html Msg
