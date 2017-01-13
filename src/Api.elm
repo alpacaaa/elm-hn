@@ -51,8 +51,8 @@ storyDecoder =
         |> Pipeline.required "score" Decode.int
         |> Pipeline.requiredAt [ "by", "id" ] Decode.string
         |> Pipeline.required "time" Decode.int
-        |> Pipeline.required "descendants" (Decode.nullable Decode.int)
-        |> Pipeline.required "url" (Decode.nullable Decode.string)
+        |> Pipeline.optional "descendants" (Decode.nullable Decode.int) Nothing
+        |> Pipeline.optional "url" (Decode.nullable Decode.string) Nothing
 
 
 topStoriesQuery : Query
