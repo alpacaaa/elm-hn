@@ -1,6 +1,7 @@
 module Api
     exposing
         ( fetchTopStories
+        , fetchStory
         )
 
 import Http
@@ -12,6 +13,7 @@ import Types exposing (Story, Comment)
 
 type alias Field =
     { name : String
+    , args : String
     , query : Query
     }
 
@@ -22,7 +24,12 @@ type Query
 
 field : String -> List Field -> Field
 field name fields =
-    Field name (Query fields)
+    Field name "" (Query fields)
+
+
+fieldWithArgs : String -> String -> List Field -> Field
+fieldWithArgs name args fields =
+    Field name args (Query fields)
 
 
 queryToString : Query -> String
@@ -39,8 +46,8 @@ queryToString (Query query) =
 
 
 fieldToString : Field -> String
-fieldToString { name, query } =
-    name ++ " " ++ queryToString query
+fieldToString { name, args, query } =
+    name ++ " " ++ args ++ " " ++ queryToString query
 
 
 storyDecoder : Decode.Decoder Story
@@ -97,5 +104,36 @@ fetchTopStories =
         decoder =
             Decode.at [ "data", "hn", "topStories" ] <|
                 Decode.list storyDecoder
+    in
+        Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
+
+
+storyQuery : String -> Query
+storyQuery id =
+    Query
+        [ field "hn"
+            [ fieldWithArgs "item"
+                ("(id: " ++ id ++ ")")
+                [ field "id" []
+                ]
+            ]
+        ]
+
+
+fetchStory : String -> Http.Request Story
+fetchStory id =
+    let
+        query =
+            queryToString <| storyQuery id
+
+        body =
+            Encode.object
+                [ ( "query", Encode.string query ) ]
+
+        jsonBody =
+            Http.jsonBody <| body
+
+        decoder =
+            Decode.at [ "data", "hn", "item" ] storyDecoder
     in
         Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder

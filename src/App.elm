@@ -54,6 +54,9 @@ cmdsForRoute route =
         Home ->
             [ Http.send FetchHNTopStories Api.fetchTopStories ]
 
+        Story id ->
+            [ Http.send FetchHNStory <| Api.fetchStory id ]
+
         _ ->
             []
 
@@ -91,6 +94,7 @@ onLocationChange loc =
 type Msg
     = NoOp
     | FetchHNTopStories (Result Http.Error (List Story))
+    | FetchHNStory (Result Http.Error Story)
     | CurrentTime Time.Time
     | RouteUpdate Route
     | Go String
@@ -109,11 +113,13 @@ update msg model =
             { model | stories = stories } ! []
 
         FetchHNTopStories (Err err) ->
-            let
-                _ =
-                    Debug.log "request blew up" err
-            in
-                model ! []
+            logErr model err
+
+        FetchHNStory (Ok story) ->
+            { model | story = Just story } ! []
+
+        FetchHNStory (Err err) ->
+            logErr model err
 
         Go path ->
             ( model, Navigation.newUrl path )
@@ -126,6 +132,14 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+logErr model err =
+    let
+        _ =
+            Debug.log "request blew up" err
+    in
+        model ! []
 
 
 renderHost : String -> Html Msg
