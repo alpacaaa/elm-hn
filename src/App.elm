@@ -7,7 +7,7 @@ import Date
 import Time
 import Task
 import Http
-import Types exposing (Story)
+import Types exposing (Story, Comment)
 import Api
 import Erl as Url
 import Date.Distance
@@ -248,8 +248,8 @@ itemContent { now } story =
             ]
         , text " "
         , time [ class "Item__time" ] [ text <| formatTime now story.time ]
-        , maybeRender (\_ -> text " | ") story.comments
-        , maybeRender (renderCommentsCount story.id) story.comments
+        , maybeRender (\_ -> text " | ") story.commentsCount
+        , maybeRender (renderCommentsCount story.id) story.commentsCount
         ]
     ]
 

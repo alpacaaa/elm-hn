@@ -1,6 +1,7 @@
 module Types
     exposing
         ( Story
+        , Comment
         )
 
 
@@ -10,6 +11,12 @@ type alias Story =
     , score : Int
     , user : String
     , time : Int
-    , comments : Maybe Int
+    , commentsCount : Maybe Int
+    , comments : List Comment
     , url : Maybe String
+    }
+
+
+type alias Comment =
+    { id : String
     }
