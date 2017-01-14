@@ -18,11 +18,18 @@ import Json.Decode
 type alias Model =
     { stories : List Story
     , now : Time.Time
+    , route : Route
     }
 
 
 type alias Context =
     { now : Time.Time }
+
+
+type Route
+    = Home
+    | Story String
+    | NotFound
 
 
 init : Navigation.Location -> ( Model, Cmd Msg )
@@ -31,10 +38,23 @@ init location =
         currentTime =
             Task.perform CurrentTime Time.now
 
-        fetchTopStories =
-            Http.send FetchHNTopStories Api.fetchTopStories
+        initialModel =
+            { stories = [], now = 0, route = Home }
+
+        cmds =
+            cmdsForRoute initialModel.route
     in
-        { stories = [], now = 0 } ! [ currentTime, fetchTopStories ]
+        initialModel ! (currentTime :: cmds)
+
+
+cmdsForRoute : Route -> List (Cmd Msg)
+cmdsForRoute route =
+    case route of
+        Home ->
+            [ Http.send FetchHNTopStories Api.fetchTopStories ]
+
+        _ ->
+            []
 
 
 href : String -> List (Html.Attribute Msg)
@@ -50,16 +70,28 @@ href path =
 onLocationChange : Navigation.Location -> Msg
 onLocationChange loc =
     let
-        _ =
-            Debug.log "location changed" loc
+        parsed =
+            Url.parse loc.href
+
+        route =
+            case parsed.path of
+                [] ->
+                    Home
+
+                "story" :: id :: [] ->
+                    Story id
+
+                _ ->
+                    NotFound
     in
-        NoOp
+        RouteUpdate route
 
 
 type Msg
     = NoOp
     | FetchHNTopStories (Result Http.Error (List Story))
     | CurrentTime Time.Time
+    | RouteUpdate Route
     | Go String
 
 
@@ -68,6 +100,9 @@ update msg model =
     case msg of
         CurrentTime time ->
             { model | now = time } ! []
+
+        RouteUpdate route ->
+            { model | route = route } ! cmdsForRoute route
 
         FetchHNTopStories (Ok stories) ->
             { model | stories = stories } ! []
