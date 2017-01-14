@@ -372,7 +372,7 @@ mainContent model =
 
             Story _ ->
                 Maybe.map (storyMainContent ctx) model.story
-                    |> Maybe.withDefault emptyDiv
+                    |> Maybe.withDefault notFound
 
             _ ->
                 notFound

@@ -115,6 +115,22 @@ storyQuery id =
             [ fieldWithArgs "item"
                 ("(id: " ++ id ++ ")")
                 [ field "id" []
+                , field "url" []
+                , field "title" []
+                , field "score" []
+                , field "time" []
+                , field "by"
+                    [ field "id" []
+                    ]
+                , field "kids"
+                    [ field "id" []
+                    , field "text" []
+                    , field "score" []
+                    , field "time" []
+                    , field "by"
+                        [ field "id" []
+                        ]
+                    ]
                 ]
             ]
         ]
