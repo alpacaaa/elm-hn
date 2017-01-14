@@ -17,6 +17,7 @@ import Json.Decode
 
 type alias Model =
     { stories : List Story
+    , story : Maybe Story
     , now : Time.Time
     , route : Route
     }
@@ -39,7 +40,7 @@ init location =
             Task.perform CurrentTime Time.now
 
         initialModel =
-            { stories = [], now = 0, route = Home }
+            { stories = [], story = Nothing, now = 0, route = Home }
 
         cmds =
             cmdsForRoute initialModel.route
@@ -319,8 +320,8 @@ commentsTree =
     [ singleComment ]
 
 
-mainContent : Context -> List Story -> Html Msg
-mainContent ctx stories =
+homeMainContent : Context -> List Story -> Html Msg
+homeMainContent ctx stories =
     div [ class "Items" ]
         [ ol [ class "Items__list" ] <|
             List.map
@@ -329,6 +330,38 @@ mainContent ctx stories =
         , paginator
           -- , itemDetail
         ]
+
+
+storyMainContent : Context -> Story -> Html Msg
+storyMainContent ctx story =
+    div [ class "Items" ]
+        [ ol [ class "Items__list" ]
+            [ itemDetail ctx story
+            ]
+        ]
+
+
+notFound : Html Msg
+notFound =
+    div [] [ text "Not found" ]
+
+
+mainContent : Model -> Html Msg
+mainContent model =
+    let
+        ctx =
+            { now = model.now }
+    in
+        case model.route of
+            Home ->
+                homeMainContent ctx model.stories
+
+            Story _ ->
+                Maybe.map (storyMainContent ctx) model.story
+                    |> Maybe.withDefault emptyDiv
+
+            _ ->
+                notFound
 
 
 view : Model -> Html Msg
@@ -355,7 +388,7 @@ view model =
                     ]
                 ]
             , div [ class "App__content" ]
-                [ mainContent { now = model.now } model.stories
+                [ mainContent model
                 ]
             , div [ class "App__footer" ]
                 [ a [] [ text "elm-hn" ]
