@@ -9,7 +9,7 @@ module Types
 type alias Story =
     { id : String
     , title : String
-    , score : Int
+    , score : Maybe Int
     , user : String
     , time : Int
     , commentsCount : Maybe Int
@@ -20,6 +20,10 @@ type alias Story =
 
 type alias Comment =
     { id : String
+    , text : String
+    , score : Maybe Int
+    , user : String
+    , time : Int
     , kids : Kids
     }
 

@@ -13,6 +13,7 @@ import Erl as Url
 import Date.Distance
 import Navigation
 import Json.Decode
+import Json.Encode
 
 
 type alias Model =
@@ -242,6 +243,11 @@ formatTime nowMs ms =
         (Date.Distance.inWords date now) ++ " ago"
 
 
+innerHtml : String -> Html.Attribute Msg
+innerHtml content =
+    Html.Attributes.property "innerHTML" <| Json.Encode.string content
+
+
 storyTitle : Story -> Html Msg
 storyTitle story =
     let
@@ -257,23 +263,28 @@ storyTitle story =
 
 itemContent : Context -> Story -> List (Html Msg)
 itemContent { now } story =
-    [ div [ class "Item__title" ]
-        [ storyTitle story
-        , text " "
-        , maybeRender renderHost story.url
-        ]
-    , div [ class "Item__meta" ]
-        [ span [ class "Item__score" ] [ text <| (toString story.score) ++ " points" ]
-        , text " "
-        , span [ class "Item__by" ]
-            [ a [] [ text story.user ]
+    let
+        score =
+            Maybe.withDefault 0 story.score
+                |> toString
+    in
+        [ div [ class "Item__title" ]
+            [ storyTitle story
+            , text " "
+            , maybeRender renderHost story.url
             ]
-        , text " "
-        , time [ class "Item__time" ] [ text <| formatTime now story.time ]
-        , maybeRender (\_ -> text " | ") story.commentsCount
-        , maybeRender (renderCommentsCount story.id) story.commentsCount
+        , div [ class "Item__meta" ]
+            [ span [ class "Item__score" ] [ text <| score ++ " points" ]
+            , text " "
+            , span [ class "Item__by" ]
+                [ a [] [ text story.user ]
+                ]
+            , text " "
+            , time [ class "Item__time" ] [ text <| formatTime now story.time ]
+            , maybeRender (\_ -> text " | ") story.commentsCount
+            , maybeRender (renderCommentsCount story.id) story.commentsCount
+            ]
         ]
-    ]
 
 
 itemDetail : Context -> Story -> Html Msg
@@ -289,36 +300,23 @@ collapsible =
     span [ class "Comment__collapse" ] [ text "[+]" ]
 
 
-commentMetaDead : Html Msg
-commentMetaDead =
+commentMeta : Context -> Comment -> Html Msg
+commentMeta { now } comment =
     div [ class "Comment__meta" ]
         [ collapsible
         , text " "
-        , text " | (2 children"
-        , text ", "
-        , em [] [ text "5 new" ]
-        , text ")"
-        ]
-
-
-commentMeta : Html Msg
-commentMeta =
-    div [ class "Comment__meta" ]
-        [ collapsible
+        , a [ class "Comment__user" ] [ text comment.user ]
         , text " "
-        , a [ class "Comment__user" ] [ text "some dudette" ]
-        , time [] [ text "5 hours ago" ]
+        , time [] [ text <| formatTime now comment.time ]
         , text " | "
         , a [] [ text "link" ]
         ]
 
 
-commentText : Html Msg
-commentText =
+commentText : Comment -> Html Msg
+commentText comment =
     div [ class "Comment__text" ]
-        [ div []
-            [ text "This is depressing. Trello is a beloved software for a lot of people. It's sad that Trello decided to sell off to Atlassian. I can't believe the same company that makes Jira is going to run Trello. SourceTree is the only software that they make that doesn't suck."
-            ]
+        [ div [ innerHtml comment.text ] []
         , p []
             [ a [] [ text "reply" ]
             ]
@@ -332,13 +330,20 @@ kids (Kids comments) =
 
 singleComment : Context -> Int -> Comment -> Html Msg
 singleComment ctx level comment =
-    div [ class <| "Comment Comment--level" ++ toString level ]
-        [ div [ class "Comment__content" ]
-            [ commentMeta
-            , commentText
+    let
+        comments =
+            kids comment.kids
+
+        newLevel =
+            singleComment ctx (level + 1)
+    in
+        div [ class <| "Comment Comment--level" ++ toString level ]
+            [ div [ class "Comment__content" ]
+                [ commentMeta ctx comment
+                , commentText comment
+                ]
+            , div [ class "Comment__kids" ] <| List.map newLevel comments
             ]
-        , div [ class "Comment__kids" ] <| List.map (singleComment ctx (level + 1)) <| kids comment.kids
-        ]
 
 
 commentsTree : Context -> Story -> List (Html Msg)

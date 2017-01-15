@@ -75,7 +75,7 @@ storyDecoder =
     Pipeline.decode Story
         |> Pipeline.required "id" Decode.string
         |> Pipeline.required "title" Decode.string
-        |> Pipeline.required "score" Decode.int
+        |> Pipeline.optional "score" (Decode.nullable Decode.int) Nothing
         |> Pipeline.requiredAt [ "by", "id" ] Decode.string
         |> Pipeline.required "time" Decode.int
         |> Pipeline.optional "descendants" (Decode.nullable Decode.int) Nothing
@@ -83,11 +83,20 @@ storyDecoder =
         |> Pipeline.optional "url" (Decode.nullable Decode.string) Nothing
 
 
+kidsDecoder : Decode.Decoder Kids
+kidsDecoder =
+    Decode.lazy (\_ -> Decode.list commentDecoder |> Decode.map Kids)
+
+
 commentDecoder : Decode.Decoder Comment
 commentDecoder =
     Pipeline.decode Comment
         |> Pipeline.required "id" Decode.string
-        |> Pipeline.optional "kids" (Decode.lazy (\_ -> Decode.list commentDecoder |> Decode.map Kids)) (Kids [])
+        |> Pipeline.required "text" Decode.string
+        |> Pipeline.optional "score" (Decode.nullable Decode.int) Nothing
+        |> Pipeline.requiredAt [ "by", "id" ] Decode.string
+        |> Pipeline.required "time" Decode.int
+        |> Pipeline.optional "kids" kidsDecoder (Kids [])
 
 
 topStoriesQuery : Query
