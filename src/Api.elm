@@ -128,6 +128,30 @@ fetchTopStories =
         Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
 
 
+commentFields : List Field
+commentFields =
+    [ field "id" []
+    , field "text" []
+    , field "score" []
+    , field "time" []
+    , field "by"
+        [ field "id" []
+        ]
+    ]
+
+
+fetchKids : Int -> Field
+fetchKids count =
+    let
+        fields =
+            if count == 0 then
+                commentFields
+            else
+                fetchKids (count - 1) :: commentFields
+    in
+        field "kids" fields
+
+
 storyQuery : String -> Query
 storyQuery id =
     Query
@@ -142,15 +166,7 @@ storyQuery id =
                 , field "by"
                     [ field "id" []
                     ]
-                , field "kids"
-                    [ field "id" []
-                    , field "text" []
-                    , field "score" []
-                    , field "time" []
-                    , field "by"
-                        [ field "id" []
-                        ]
-                    ]
+                , fetchKids 5
                 ]
             ]
         ]

@@ -42,8 +42,14 @@ init location =
         initialModel =
             { stories = [], story = Nothing, now = 0, route = Home }
 
+        currentRoute =
+            routeByLocation location
+
         cmds =
-            cmdsForRoute initialModel.route
+            if currentRoute /= initialModel.route then
+                [ Navigation.newUrl location.pathname ]
+            else
+                cmdsForRoute currentRoute
     in
         initialModel ! (currentTime :: cmds)
 
@@ -71,24 +77,26 @@ href path =
     ]
 
 
-onLocationChange : Navigation.Location -> Msg
-onLocationChange loc =
+routeByLocation : Navigation.Location -> Route
+routeByLocation loc =
     let
         parsed =
             Url.parse loc.href
-
-        route =
-            case parsed.path of
-                [] ->
-                    Home
-
-                "story" :: id :: [] ->
-                    Story id
-
-                _ ->
-                    NotFound
     in
-        RouteUpdate route
+        case parsed.path of
+            [] ->
+                Home
+
+            "story" :: id :: [] ->
+                Story id
+
+            _ ->
+                NotFound
+
+
+onLocationChange : Navigation.Location -> Msg
+onLocationChange loc =
+    RouteUpdate <| routeByLocation loc
 
 
 type Msg
