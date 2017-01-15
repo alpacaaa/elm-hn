@@ -13,7 +13,7 @@ import Types exposing (Story, Comment)
 
 type alias Field =
     { name : String
-    , args : String
+    , args : Args
     , query : Query
     }
 
@@ -22,12 +22,16 @@ type Query
     = Query (List Field)
 
 
+type alias Args =
+    List ( String, String )
+
+
 field : String -> List Field -> Field
 field name fields =
-    Field name "" (Query fields)
+    Field name [] (Query fields)
 
 
-fieldWithArgs : String -> String -> List Field -> Field
+fieldWithArgs : String -> Args -> List Field -> Field
 fieldWithArgs name args fields =
     Field name args (Query fields)
 
@@ -47,7 +51,23 @@ queryToString (Query query) =
 
 fieldToString : Field -> String
 fieldToString { name, args, query } =
-    name ++ " " ++ args ++ " " ++ queryToString query
+    name ++ " " ++ argsToString args ++ " " ++ queryToString query
+
+
+argsToString : Args -> String
+argsToString args =
+    if List.isEmpty args then
+        ""
+    else
+        let
+            transform =
+                \( key, value ) -> key ++ ": " ++ value
+
+            str =
+                List.map transform args
+                    |> List.foldr (++) " "
+        in
+            "( " ++ str ++ " )"
 
 
 storyDecoder : Decode.Decoder Story
@@ -113,7 +133,7 @@ storyQuery id =
     Query
         [ field "hn"
             [ fieldWithArgs "item"
-                ("(id: " ++ id ++ ")")
+                [ ( "id", id ) ]
                 [ field "id" []
                 , field "url" []
                 , field "title" []
