@@ -8,7 +8,7 @@ import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline as Pipeline
-import Types exposing (Story, Comment)
+import Types exposing (Story, Comment, Kids(..))
 
 
 type alias Field =
@@ -87,6 +87,7 @@ commentDecoder : Decode.Decoder Comment
 commentDecoder =
     Pipeline.decode Comment
         |> Pipeline.required "id" Decode.string
+        |> Pipeline.optional "kids" (Decode.lazy (\_ -> Decode.list commentDecoder |> Decode.map Kids)) (Kids [])
 
 
 topStoriesQuery : Query

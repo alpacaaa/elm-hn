@@ -7,7 +7,7 @@ import Date
 import Time
 import Task
 import Http
-import Types exposing (Story, Comment)
+import Types exposing (Story, Comment, Kids(..))
 import Api
 import Erl as Url
 import Date.Distance
@@ -280,7 +280,7 @@ itemDetail : Context -> Story -> Html Msg
 itemDetail ctx story =
     div [ class "Item" ]
         [ div [ class "Item__content" ] <| itemContent ctx story
-        , div [ class "Item__kids" ] commentsTree
+        , div [ class "Item__kids" ] <| commentsTree ctx story
         ]
 
 
@@ -325,21 +325,25 @@ commentText =
         ]
 
 
-singleComment : Html Msg
-singleComment =
-    div [ class "Comment Comment--level0" ]
+kids : Kids -> List Comment
+kids (Kids comments) =
+    comments
+
+
+singleComment : Context -> Int -> Comment -> Html Msg
+singleComment ctx level comment =
+    div [ class <| "Comment Comment--level" ++ toString level ]
         [ div [ class "Comment__content" ]
-            [ commentMetaDead
-            , commentMeta
+            [ commentMeta
             , commentText
             ]
-        , div [ class "Comment__kids" ] []
+        , div [ class "Comment__kids" ] <| List.map (singleComment ctx (level + 1)) <| kids comment.kids
         ]
 
 
-commentsTree : List (Html Msg)
-commentsTree =
-    [ singleComment ]
+commentsTree : Context -> Story -> List (Html Msg)
+commentsTree ctx story =
+    List.map (singleComment ctx 0) story.comments
 
 
 homeMainContent : Context -> List Story -> Html Msg

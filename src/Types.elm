@@ -2,6 +2,7 @@ module Types
     exposing
         ( Story
         , Comment
+        , Kids(..)
         )
 
 
@@ -19,4 +20,9 @@ type alias Story =
 
 type alias Comment =
     { id : String
+    , kids : Kids
     }
+
+
+type Kids
+    = Kids (List Comment)
