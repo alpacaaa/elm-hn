@@ -8,7 +8,7 @@ import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline as Pipeline
-import Types exposing (Story, Comment, Kids(..))
+import Types exposing (Story, Comment, Kids(..), Collapsible(..))
 
 
 type alias Field =
@@ -81,6 +81,7 @@ storyDecoder =
         |> Pipeline.optional "descendants" (Decode.nullable Decode.int) Nothing
         |> Pipeline.optional "kids" (Decode.list commentDecoder) []
         |> Pipeline.optional "url" (Decode.nullable Decode.string) Nothing
+        |> Pipeline.hardcoded Open
 
 
 kidsDecoder : Decode.Decoder Kids
