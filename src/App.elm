@@ -160,7 +160,22 @@ logErr model err =
 
 updateCollapsedStatus : String -> Story -> Story
 updateCollapsedStatus id story =
-    story
+    let
+        invert state =
+            case state of
+                Open ->
+                    Closed
+
+                Closed ->
+                    Open
+
+        toggle c =
+            if c.id == id then
+                { c | collapsed = invert c.collapsed }
+            else
+                c
+    in
+        { story | comments = List.map toggle story.comments }
 
 
 renderHost : String -> Html Msg
