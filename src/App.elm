@@ -1,7 +1,7 @@
 module App exposing (..)
 
 import Html exposing (..)
-import Html.Events
+import Html.Events exposing (onClick)
 import Html.Attributes exposing (class, style, src, width, height, alt)
 import Date
 import Time
@@ -32,6 +32,21 @@ type Route
     = Home
     | Story String
     | NotFound
+
+
+type Msg
+    = NoOp
+    | FetchHNTopStories (Result Http.Error (List Story))
+    | FetchHNStory (Result Http.Error Story)
+    | CurrentTime Time.Time
+    | RouteUpdate Route
+    | Go String
+    | ToggleCollapse String
+
+
+onLocationChange : Navigation.Location -> Msg
+onLocationChange loc =
+    RouteUpdate <| routeByLocation loc
 
 
 init : Navigation.Location -> ( Model, Cmd Msg )
@@ -95,23 +110,12 @@ routeByLocation loc =
                 NotFound
 
 
-onLocationChange : Navigation.Location -> Msg
-onLocationChange loc =
-    RouteUpdate <| routeByLocation loc
-
-
-type Msg
-    = NoOp
-    | FetchHNTopStories (Result Http.Error (List Story))
-    | FetchHNStory (Result Http.Error Story)
-    | CurrentTime Time.Time
-    | RouteUpdate Route
-    | Go String
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            model ! []
+
         CurrentTime time ->
             { model | now = time } ! []
 
@@ -133,9 +137,11 @@ update msg model =
         Go path ->
             ( model, Navigation.newUrl path )
 
-        -- TODO
-        _ ->
-            model ! []
+        ToggleCollapse id ->
+            { model
+                | story = Maybe.map (updateCollapsedStatus id) model.story
+            }
+                ! []
 
 
 subscriptions : Model -> Sub Msg
@@ -143,12 +149,18 @@ subscriptions model =
     Sub.none
 
 
+logErr : Model -> Http.Error -> ( Model, Cmd a )
 logErr model err =
     let
         _ =
             Debug.log "request blew up" err
     in
         model ! []
+
+
+updateCollapsedStatus : String -> Story -> Story
+updateCollapsedStatus id story =
+    story
 
 
 renderHost : String -> Html Msg
@@ -290,11 +302,11 @@ itemDetail ctx story =
         ]
 
 
-collapsible : Collapsible -> Html Msg
-collapsible state =
+collapsible : Comment -> Html Msg
+collapsible { id, collapsed } =
     let
         symbol =
-            case state of
+            case collapsed of
                 Open ->
                     "–"
 
@@ -304,13 +316,14 @@ collapsible state =
         wrapped =
             "[" ++ symbol ++ "]"
     in
-        span [ class "Comment__collapse" ] [ text wrapped ]
+        span [ class "Comment__collapse", onClick <| ToggleCollapse id ]
+            [ text wrapped ]
 
 
 commentMeta : Context -> Comment -> Html Msg
 commentMeta { now } comment =
     div [ class "Comment__meta" ]
-        [ collapsible comment.collapsed
+        [ collapsible comment
         , text " "
         , a [ class "Comment__user" ] [ text comment.user ]
         , text " "
