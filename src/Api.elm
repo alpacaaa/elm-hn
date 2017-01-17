@@ -99,11 +99,12 @@ commentDecoder =
         |> Pipeline.optional "kids" kidsDecoder (Kids [])
 
 
-topStoriesQuery : Query
-topStoriesQuery =
+topStoriesQuery : Int -> Query
+topStoriesQuery offset =
     Query
         [ field "hn"
-            [ field "topStories"
+            [ fieldWithArgs "topStories"
+                [ ( "offset", toString offset ), ( "limit", "30" ) ]
                 [ field "id" []
                 , field "url" []
                 , field "title" []
@@ -118,11 +119,11 @@ topStoriesQuery =
         ]
 
 
-fetchTopStories : Http.Request (List Story)
-fetchTopStories =
+fetchTopStories : Int -> Http.Request (List Story)
+fetchTopStories offset =
     let
         query =
-            queryToString topStoriesQuery
+            queryToString <| topStoriesQuery offset
 
         jsonBody =
             Http.jsonBody <|

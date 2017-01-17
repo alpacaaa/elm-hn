@@ -33,7 +33,7 @@ type alias Context =
 
 
 type Route
-    = Home
+    = Home Int
     | Story String
     | NotFound
 
@@ -59,22 +59,19 @@ init location =
         currentTime =
             Task.perform CurrentTime Time.now
 
+        currentRoute =
+            routeByLocation location
+
         initialModel =
             { stories = []
             , story = Nothing
             , now = 0
-            , route = Home
+            , route = currentRoute
             , collapsedComments = Set.empty
             }
 
-        currentRoute =
-            routeByLocation location
-
         cmds =
-            if currentRoute /= initialModel.route then
-                [ Navigation.newUrl location.pathname ]
-            else
-                cmdsForRoute currentRoute
+            cmdsForRoute currentRoute
     in
         initialModel ! (currentTime :: cmds)
 
@@ -82,8 +79,8 @@ init location =
 cmdsForRoute : Route -> List (Cmd Msg)
 cmdsForRoute route =
     case route of
-        Home ->
-            [ Http.send FetchHNTopStories Api.fetchTopStories ]
+        Home page ->
+            [ Http.send FetchHNTopStories <| Api.fetchTopStories ((page - 1) * 30) ]
 
         Story id ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
@@ -110,13 +107,29 @@ routeByLocation loc =
     in
         case parsed.path of
             [] ->
-                Home
+                Home (getPage parsed.query)
 
             "story" :: id :: [] ->
                 Story id
 
             _ ->
                 NotFound
+
+
+getPage : Url.Query -> Int
+getPage query =
+    query
+        |> List.filterMap getPageHelper
+        |> List.head
+        |> Maybe.withDefault 0
+
+
+getPageHelper : ( String, String ) -> Maybe Int
+getPageHelper ( key, val ) =
+    if (key == "page") then
+        Result.toMaybe <| String.toInt val
+    else
+        Nothing
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -446,7 +459,7 @@ mainContent model =
             }
     in
         case model.route of
-            Home ->
+            Home page ->
                 homeMainContent ctx model.stories
 
             Story _ ->
