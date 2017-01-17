@@ -19,7 +19,5 @@
     "url": "https://github.com/alpacaaa/elm-hn/issues"
   },
   "homepage": "https://github.com/alpacaaa/elm-hn#readme",
-  "dependencies": {
-    "firebase": "^3.6.4"
-  }
+  "dependencies": {}
 }
