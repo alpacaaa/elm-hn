@@ -181,15 +181,10 @@ renderCommentsCount id comments =
         a (href (linkToStory id)) [ text str ]
 
 
-emptyDiv : Html Msg
-emptyDiv =
-    div [] []
-
-
 maybeRender : (a -> Html Msg) -> Maybe a -> Html Msg
 maybeRender fn maybeValue =
     Maybe.map fn maybeValue
-        |> Maybe.withDefault emptyDiv
+        |> Maybe.withDefault (text "")
 
 
 paginator : Html Msg
