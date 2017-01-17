@@ -75,7 +75,7 @@ storyDecoder =
     Pipeline.decode Story
         |> Pipeline.required "id" Decode.string
         |> Pipeline.required "title" Decode.string
-        |> Pipeline.optional "score" (Decode.nullable Decode.int) Nothing
+        |> Pipeline.optional "score" Decode.int 0
         |> Pipeline.requiredAt [ "by", "id" ] Decode.string
         |> Pipeline.optional "time" Decode.int 0
         |> Pipeline.optional "descendants" (Decode.nullable Decode.int) Nothing
@@ -93,11 +93,10 @@ commentDecoder =
     Pipeline.decode Comment
         |> Pipeline.required "id" Decode.string
         |> Pipeline.optional "text" Decode.string ""
-        |> Pipeline.optional "score" (Decode.nullable Decode.int) Nothing
+        |> Pipeline.optional "score" Decode.int 0
         |> Pipeline.requiredAt [ "by", "id" ] Decode.string
         |> Pipeline.optional "time" Decode.int 0
         |> Pipeline.optional "kids" kidsDecoder (Kids [])
-        |> Pipeline.hardcoded Open
 
 
 topStoriesQuery : Query

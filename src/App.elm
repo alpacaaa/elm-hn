@@ -7,6 +7,7 @@ import Date
 import Time
 import Task
 import Http
+import Dict
 import Types exposing (Story, Comment, Kids(..), Collapsible(..))
 import Api
 import Erl as Url
@@ -21,11 +22,14 @@ type alias Model =
     , story : Maybe Story
     , now : Time.Time
     , route : Route
+    , collapsedComments : Dict.Dict String Collapsible
     }
 
 
 type alias Context =
-    { now : Time.Time }
+    { now : Time.Time
+    , collapsed : Dict.Dict String Collapsible
+    }
 
 
 type Route
@@ -56,7 +60,12 @@ init location =
             Task.perform CurrentTime Time.now
 
         initialModel =
-            { stories = [], story = Nothing, now = 0, route = Home }
+            { stories = []
+            , story = Nothing
+            , now = 0
+            , route = Home
+            , collapsedComments = Dict.empty
+            }
 
         currentRoute =
             routeByLocation location
@@ -138,10 +147,7 @@ update msg model =
             ( model, Navigation.newUrl path )
 
         ToggleCollapse id ->
-            { model
-                | story = Maybe.map (updateCollapsedStatus id) model.story
-            }
-                ! []
+            (toggleCollapseHelper id model) ! []
 
 
 subscriptions : Model -> Sub Msg
@@ -158,9 +164,12 @@ logErr model err =
         model ! []
 
 
-updateCollapsedStatus : String -> Story -> Story
-updateCollapsedStatus id story =
+toggleCollapseHelper : String -> Model -> Model
+toggleCollapseHelper id model =
     let
+        original =
+            model.collapsedComments
+
         invert state =
             case state of
                 Open ->
@@ -169,13 +178,13 @@ updateCollapsedStatus id story =
                 Closed ->
                     Open
 
-        toggle c =
-            if c.id == id then
-                { c | collapsed = invert c.collapsed }
-            else
-                c
+        collapsed =
+            Dict.get id original
+                |> Maybe.withDefault Open
     in
-        { story | comments = List.map toggle story.comments }
+        { model
+            | collapsedComments = Dict.insert id (invert collapsed) original
+        }
 
 
 renderHost : String -> Html Msg
@@ -285,28 +294,23 @@ storyTitle story =
 
 itemContent : Context -> Story -> List (Html Msg)
 itemContent { now } story =
-    let
-        score =
-            Maybe.withDefault 0 story.score
-                |> toString
-    in
-        [ div [ class "Item__title" ]
-            [ storyTitle story
-            , text " "
-            , maybeRender renderHost story.url
-            ]
-        , div [ class "Item__meta" ]
-            [ span [ class "Item__score" ] [ text <| score ++ " points" ]
-            , text " "
-            , span [ class "Item__by" ]
-                [ a [] [ text story.user ]
-                ]
-            , text " "
-            , time [ class "Item__time" ] [ text <| formatTime now story.time ]
-            , maybeRender (\_ -> text " | ") story.commentsCount
-            , maybeRender (renderCommentsCount story.id) story.commentsCount
-            ]
+    [ div [ class "Item__title" ]
+        [ storyTitle story
+        , text " "
+        , maybeRender renderHost story.url
         ]
+    , div [ class "Item__meta" ]
+        [ span [ class "Item__score" ] [ text <| (toString story.score) ++ " points" ]
+        , text " "
+        , span [ class "Item__by" ]
+            [ a [] [ text story.user ]
+            ]
+        , text " "
+        , time [ class "Item__time" ] [ text <| formatTime now story.time ]
+        , maybeRender (\_ -> text " | ") story.commentsCount
+        , maybeRender (renderCommentsCount story.id) story.commentsCount
+        ]
+    ]
 
 
 itemDetail : Context -> Story -> Html Msg
@@ -317,9 +321,13 @@ itemDetail ctx story =
         ]
 
 
-collapsible : Comment -> Html Msg
-collapsible { id, collapsed } =
+collapsible : String -> Dict.Dict String Collapsible -> Html Msg
+collapsible id collapsedComments =
     let
+        collapsed =
+            Dict.get id collapsedComments
+                |> Maybe.withDefault Open
+
         symbol =
             case collapsed of
                 Open ->
@@ -336,9 +344,9 @@ collapsible { id, collapsed } =
 
 
 commentMeta : Context -> Comment -> Html Msg
-commentMeta { now } comment =
+commentMeta { now, collapsed } comment =
     div [ class "Comment__meta" ]
-        [ collapsible comment
+        [ collapsible comment.id collapsed
         , text " "
         , a [ class "Comment__user" ] [ text comment.user ]
         , text " "
@@ -420,7 +428,9 @@ mainContent : Model -> Html Msg
 mainContent model =
     let
         ctx =
-            { now = model.now }
+            { now = model.now
+            , collapsed = model.collapsedComments
+            }
     in
         case model.route of
             Home ->
