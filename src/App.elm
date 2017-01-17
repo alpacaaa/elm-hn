@@ -7,7 +7,7 @@ import Date
 import Time
 import Task
 import Http
-import Dict
+import Set
 import Types exposing (Story, Comment, Kids(..), Collapsible(..))
 import Api
 import Erl as Url
@@ -22,13 +22,13 @@ type alias Model =
     , story : Maybe Story
     , now : Time.Time
     , route : Route
-    , collapsedComments : Dict.Dict String Collapsible
+    , collapsedComments : Set.Set String
     }
 
 
 type alias Context =
     { now : Time.Time
-    , collapsed : Dict.Dict String Collapsible
+    , collapsedComments : Set.Set String
     }
 
 
@@ -45,7 +45,7 @@ type Msg
     | CurrentTime Time.Time
     | RouteUpdate Route
     | Go String
-    | ToggleCollapse String
+    | ToggleCollapse String Collapsible
 
 
 onLocationChange : Navigation.Location -> Msg
@@ -64,7 +64,7 @@ init location =
             , story = Nothing
             , now = 0
             , route = Home
-            , collapsedComments = Dict.empty
+            , collapsedComments = Set.empty
             }
 
         currentRoute =
@@ -146,8 +146,8 @@ update msg model =
         Go path ->
             ( model, Navigation.newUrl path )
 
-        ToggleCollapse id ->
-            (toggleCollapseHelper id model) ! []
+        ToggleCollapse id collapsed ->
+            toggleCollapseHelper id collapsed model ! []
 
 
 subscriptions : Model -> Sub Msg
@@ -164,26 +164,19 @@ logErr model err =
         model ! []
 
 
-toggleCollapseHelper : String -> Model -> Model
-toggleCollapseHelper id model =
+toggleCollapseHelper : String -> Collapsible -> Model -> Model
+toggleCollapseHelper id state model =
     let
-        original =
-            model.collapsedComments
-
-        invert state =
+        operation =
             case state of
                 Open ->
-                    Closed
+                    Set.insert
 
                 Closed ->
-                    Open
-
-        collapsed =
-            Dict.get id original
-                |> Maybe.withDefault Open
+                    Set.remove
     in
         { model
-            | collapsedComments = Dict.insert id (invert collapsed) original
+            | collapsedComments = operation id model.collapsedComments
         }
 
 
@@ -335,7 +328,7 @@ collapsible id collapsed =
         wrapped =
             "[" ++ symbol ++ "]"
     in
-        span [ class "Comment__collapse", onClick <| ToggleCollapse id ]
+        span [ class "Comment__collapse", onClick <| ToggleCollapse id collapsed ]
             [ text wrapped ]
 
 
@@ -377,15 +370,14 @@ singleComment ctx level comment =
         comments =
             kids comment.kids
 
-        newLevel =
-            singleComment ctx (level + 1)
+        isCollapsed =
+            Set.member comment.id ctx.collapsedComments
 
         collapsed =
-            Dict.get comment.id ctx.collapsed
-                |> Maybe.withDefault Open
-
-        levelClass =
-            "Comment--level" ++ toString level
+            if isCollapsed then
+                Closed
+            else
+                Open
 
         collapsedClass =
             case collapsed of
@@ -395,10 +387,15 @@ singleComment ctx level comment =
                 Closed ->
                     "Comment--collapsed"
 
+        newLevel =
+            singleComment ctx (level + 1)
+
+        levelClass =
+            "Comment--level" ++ toString level
+
         classes =
             [ "Comment", levelClass, collapsedClass ]
-                |> List.intersperse " "
-                |> List.foldl (++) ""
+                |> String.join " "
     in
         div [ class classes ]
             [ div [ class "Comment__content" ]
@@ -445,7 +442,7 @@ mainContent model =
     let
         ctx =
             { now = model.now
-            , collapsed = model.collapsedComments
+            , collapsedComments = model.collapsedComments
             }
     in
         case model.route of
