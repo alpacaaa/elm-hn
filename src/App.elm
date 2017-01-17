@@ -7,7 +7,7 @@ import Date
 import Time
 import Task
 import Http
-import Types exposing (Story, Comment, Kids(..))
+import Types exposing (Story, Comment, Kids(..), Collapsible(..))
 import Api
 import Erl as Url
 import Date.Distance
@@ -290,15 +290,27 @@ itemDetail ctx story =
         ]
 
 
-collapsible : Html Msg
-collapsible =
-    span [ class "Comment__collapse" ] [ text "[+]" ]
+collapsible : Collapsible -> Html Msg
+collapsible state =
+    let
+        symbol =
+            case state of
+                Open ->
+                    "–"
+
+                Closed ->
+                    "+"
+
+        wrapped =
+            "[" ++ symbol ++ "]"
+    in
+        span [ class "Comment__collapse" ] [ text wrapped ]
 
 
 commentMeta : Context -> Comment -> Html Msg
 commentMeta { now } comment =
     div [ class "Comment__meta" ]
-        [ collapsible
+        [ collapsible Open
         , text " "
         , a [ class "Comment__user" ] [ text comment.user ]
         , text " "

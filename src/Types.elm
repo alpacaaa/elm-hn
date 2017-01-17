@@ -3,6 +3,7 @@ module Types
         ( Story
         , Comment
         , Kids(..)
+        , Collapsible(..)
         )
 
 
@@ -30,3 +31,8 @@ type alias Comment =
 
 type Kids
     = Kids (List Comment)
+
+
+type Collapsible
+    = Open
+    | Closed
