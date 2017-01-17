@@ -321,13 +321,9 @@ itemDetail ctx story =
         ]
 
 
-collapsible : String -> Dict.Dict String Collapsible -> Html Msg
-collapsible id collapsedComments =
+collapsible : String -> Collapsible -> Html Msg
+collapsible id collapsed =
     let
-        collapsed =
-            Dict.get id collapsedComments
-                |> Maybe.withDefault Open
-
         symbol =
             case collapsed of
                 Open ->
@@ -343,8 +339,8 @@ collapsible id collapsedComments =
             [ text wrapped ]
 
 
-commentMeta : Context -> Comment -> Html Msg
-commentMeta { now, collapsed } comment =
+commentMeta : Context -> Comment -> Collapsible -> Html Msg
+commentMeta { now } comment collapsed =
     div [ class "Comment__meta" ]
         [ collapsible comment.id collapsed
         , text " "
@@ -383,10 +379,30 @@ singleComment ctx level comment =
 
         newLevel =
             singleComment ctx (level + 1)
+
+        collapsed =
+            Dict.get comment.id ctx.collapsed
+                |> Maybe.withDefault Open
+
+        levelClass =
+            "Comment--level" ++ toString level
+
+        collapsedClass =
+            case collapsed of
+                Open ->
+                    ""
+
+                Closed ->
+                    "Comment--collapsed"
+
+        classes =
+            [ "Comment", levelClass, collapsedClass ]
+                |> List.intersperse " "
+                |> List.foldl (++) ""
     in
-        div [ class <| "Comment Comment--level" ++ toString level ]
+        div [ class classes ]
             [ div [ class "Comment__content" ]
-                [ commentMeta ctx comment
+                [ commentMeta ctx comment collapsed
                 , commentText comment
                 ]
             , div [ class "Comment__kids" ] <| List.map newLevel comments
