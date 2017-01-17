@@ -92,7 +92,7 @@ commentDecoder : Decode.Decoder Comment
 commentDecoder =
     Pipeline.decode Comment
         |> Pipeline.required "id" Decode.string
-        |> Pipeline.required "text" Decode.string
+        |> Pipeline.optional "text" Decode.string ""
         |> Pipeline.optional "score" (Decode.nullable Decode.int) Nothing
         |> Pipeline.requiredAt [ "by", "id" ] Decode.string
         |> Pipeline.required "time" Decode.int
@@ -124,12 +124,10 @@ fetchTopStories =
         query =
             queryToString topStoriesQuery
 
-        body =
-            Encode.object
-                [ ( "query", Encode.string query ) ]
-
         jsonBody =
-            Http.jsonBody <| body
+            Http.jsonBody <|
+                Encode.object
+                    [ ( "query", Encode.string query ) ]
 
         decoder =
             Decode.at [ "data", "hn", "topStories" ] <|
@@ -188,12 +186,10 @@ fetchStory id =
         query =
             queryToString <| storyQuery id
 
-        body =
-            Encode.object
-                [ ( "query", Encode.string query ) ]
-
         jsonBody =
-            Http.jsonBody <| body
+            Http.jsonBody <|
+                Encode.object
+                    [ ( "query", Encode.string query ) ]
 
         decoder =
             Decode.at [ "data", "hn", "item" ] storyDecoder
