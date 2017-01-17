@@ -16,7 +16,6 @@ type alias Story =
     , commentsCount : Maybe Int
     , comments : List Comment
     , url : Maybe String
-    , collapsed : Collapsible
     }
 
 
@@ -27,6 +26,7 @@ type alias Comment =
     , user : String
     , time : Int
     , kids : Kids
+    , collapsed : Collapsible
     }
 
 

@@ -310,7 +310,7 @@ collapsible state =
 commentMeta : Context -> Comment -> Html Msg
 commentMeta { now } comment =
     div [ class "Comment__meta" ]
-        [ collapsible Open
+        [ collapsible comment.collapsed
         , text " "
         , a [ class "Comment__user" ] [ text comment.user ]
         , text " "

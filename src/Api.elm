@@ -81,7 +81,6 @@ storyDecoder =
         |> Pipeline.optional "descendants" (Decode.nullable Decode.int) Nothing
         |> Pipeline.optional "kids" (Decode.list commentDecoder) []
         |> Pipeline.optional "url" (Decode.nullable Decode.string) Nothing
-        |> Pipeline.hardcoded Open
 
 
 kidsDecoder : Decode.Decoder Kids
@@ -98,6 +97,7 @@ commentDecoder =
         |> Pipeline.requiredAt [ "by", "id" ] Decode.string
         |> Pipeline.required "time" Decode.int
         |> Pipeline.optional "kids" kidsDecoder (Kids [])
+        |> Pipeline.hardcoded Open
 
 
 topStoriesQuery : Query
