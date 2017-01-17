@@ -1,11 +1,53 @@
 module Types
     exposing
-        ( Story
+        ( Model
+        , Msg(..)
+        , Route(..)
+        , Context
+        , Story
         , Comment
         , User
         , Kids(..)
         , Collapsible(..)
         )
+
+import Set
+import Time
+import Http
+
+
+type alias Model =
+    { stories : List Story
+    , story : Maybe Story
+    , user : Maybe User
+    , now : Time.Time
+    , route : Route
+    , collapsedComments : Set.Set String
+    }
+
+
+type alias Context =
+    { now : Time.Time
+    , collapsedComments : Set.Set String
+    }
+
+
+type Route
+    = HomeRoute Int
+    | StoryRoute String
+    | UserRoute String
+    | NotFoundRoute
+
+
+type Msg
+    = NoOp
+    | FetchHNTopStories (Result Http.Error (List Story))
+    | FetchHNStory (Result Http.Error Story)
+    | FetchHNUser (Result Http.Error User)
+    | CurrentTime Time.Time
+    | RouteUpdate Route
+    | Go String
+    | ToggleCollapse String Collapsible
 
 
 type alias Story =

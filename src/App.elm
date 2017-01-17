@@ -14,42 +14,8 @@ import Navigation
 import Json.Decode
 import Json.Encode
 import Api
-import Types exposing (Story, Comment, User, Kids(..), Collapsible(..))
+import Types exposing (Model, Msg(..), Route(..), Context, Story, Comment, User, Kids(..), Collapsible(..))
 import UserProfile
-
-
-type alias Model =
-    { stories : List Story
-    , story : Maybe Story
-    , user : Maybe User
-    , now : Time.Time
-    , route : Route
-    , collapsedComments : Set.Set String
-    }
-
-
-type alias Context =
-    { now : Time.Time
-    , collapsedComments : Set.Set String
-    }
-
-
-type Route
-    = Home Int
-    | Story String
-    | User String
-    | NotFound
-
-
-type Msg
-    = NoOp
-    | FetchHNTopStories (Result Http.Error (List Story))
-    | FetchHNStory (Result Http.Error Story)
-    | FetchHNUser (Result Http.Error User)
-    | CurrentTime Time.Time
-    | RouteUpdate Route
-    | Go String
-    | ToggleCollapse String Collapsible
 
 
 onLocationChange : Navigation.Location -> Msg
@@ -84,13 +50,13 @@ init location =
 cmdsForRoute : Route -> List (Cmd Msg)
 cmdsForRoute route =
     case route of
-        Home page ->
+        HomeRoute page ->
             [ Http.send FetchHNTopStories <| Api.fetchTopStories ((page - 1) * 30) ]
 
-        Story id ->
+        StoryRoute id ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
 
-        User id ->
+        UserRoute id ->
             [ Http.send FetchHNUser <| Api.fetchUser id ]
 
         _ ->
@@ -115,16 +81,16 @@ routeByLocation loc =
     in
         case parsed.path of
             [] ->
-                Home (getPage parsed.query)
+                HomeRoute (getPage parsed.query)
 
             "story" :: id :: [] ->
-                Story id
+                StoryRoute id
 
             "user" :: id :: [] ->
-                User id
+                UserRoute id
 
             _ ->
-                NotFound
+                NotFoundRoute
 
 
 getPage : Url.Query -> Int
@@ -476,15 +442,16 @@ mainContent model =
             }
     in
         case model.route of
-            Home page ->
+            HomeRoute page ->
                 homeMainContent ctx model.stories
 
-            Story _ ->
+            StoryRoute _ ->
                 Maybe.map (storyMainContent ctx) model.story
                     |> Maybe.withDefault notFound
 
-            User _ ->
-                UserProfile.page
+            UserRoute _ ->
+                Maybe.map (UserProfile.page ctx) model.user
+                    |> Maybe.withDefault notFound
 
             _ ->
                 notFound
