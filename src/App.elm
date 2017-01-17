@@ -466,7 +466,7 @@ view model =
                     [ img [ src "https://react-hn.appspot.com/img/logo.png", width 16, height 16, alt "" ] []
                     ]
                 , a [ class "App__homelink" ]
-                    [ text "React HN" ]
+                    [ text "Elm HN" ]
                 , a [] [ text "new" ]
                 , text " | "
                 , a [] [ text "comments" ]
