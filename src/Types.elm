@@ -2,6 +2,7 @@ module Types
     exposing
         ( Story
         , Comment
+        , User
         , Kids(..)
         , Collapsible(..)
         )
@@ -36,3 +37,10 @@ type Kids
 type Collapsible
     = Open
     | Closed
+
+
+type alias User =
+    { id : String
+    , created : Int
+    , about : Maybe String
+    }

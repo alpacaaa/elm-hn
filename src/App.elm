@@ -14,13 +14,14 @@ import Navigation
 import Json.Decode
 import Json.Encode
 import Api
-import Types exposing (Story, Comment, Kids(..), Collapsible(..))
+import Types exposing (Story, Comment, User, Kids(..), Collapsible(..))
 import UserProfile
 
 
 type alias Model =
     { stories : List Story
     , story : Maybe Story
+    , user : Maybe User
     , now : Time.Time
     , route : Route
     , collapsedComments : Set.Set String
@@ -44,6 +45,7 @@ type Msg
     = NoOp
     | FetchHNTopStories (Result Http.Error (List Story))
     | FetchHNStory (Result Http.Error Story)
+    | FetchHNUser (Result Http.Error User)
     | CurrentTime Time.Time
     | RouteUpdate Route
     | Go String
@@ -67,6 +69,7 @@ init location =
         initialModel =
             { stories = []
             , story = Nothing
+            , user = Nothing
             , now = 0
             , route = currentRoute
             , collapsedComments = Set.empty
@@ -86,6 +89,9 @@ cmdsForRoute route =
 
         Story id ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
+
+        User id ->
+            [ Http.send FetchHNUser <| Api.fetchUser id ]
 
         _ ->
             []
@@ -159,6 +165,12 @@ update msg model =
             { model | story = Just story } ! []
 
         FetchHNStory (Err err) ->
+            logErr model err
+
+        FetchHNUser (Ok user) ->
+            { model | user = Just user } ! []
+
+        FetchHNUser (Err err) ->
             logErr model err
 
         Go path ->

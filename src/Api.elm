@@ -2,13 +2,14 @@ module Api
     exposing
         ( fetchTopStories
         , fetchStory
+        , fetchUser
         )
 
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline as Pipeline
-import Types exposing (Story, Comment, Kids(..), Collapsible(..))
+import Types exposing (Story, Comment, User, Kids(..), Collapsible(..))
 
 
 type alias Field =
@@ -97,6 +98,14 @@ commentDecoder =
         |> Pipeline.requiredAt [ "by", "id" ] Decode.string
         |> Pipeline.optional "time" Decode.int 0
         |> Pipeline.optional "kids" kidsDecoder (Kids [])
+
+
+userDecoder : Decode.Decoder User
+userDecoder =
+    Pipeline.decode User
+        |> Pipeline.required "id" Decode.string
+        |> Pipeline.optional "created" Decode.int 0
+        |> Pipeline.optional "about" (Decode.nullable Decode.string) Nothing
 
 
 topStoriesQuery : Int -> Query
@@ -194,5 +203,36 @@ fetchStory id =
 
         decoder =
             Decode.at [ "data", "hn", "item" ] storyDecoder
+    in
+        Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
+
+
+userQuery : String -> Query
+userQuery id =
+    Query
+        [ field "hn"
+            [ fieldWithArgs "user"
+                [ ( "id", toString id ) ]
+                [ field "id" []
+                , field "created" []
+                , field "about" []
+                ]
+            ]
+        ]
+
+
+fetchUser : String -> Http.Request User
+fetchUser id =
+    let
+        query =
+            queryToString <| userQuery id
+
+        jsonBody =
+            Http.jsonBody <|
+                Encode.object
+                    [ ( "query", Encode.string query ) ]
+
+        decoder =
+            Decode.at [ "data", "hn", "user" ] userDecoder
     in
         Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
