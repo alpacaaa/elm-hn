@@ -310,12 +310,16 @@ commentMeta { now } comment =
 
 commentText : Comment -> Html Msg
 commentText comment =
-    div [ class "Comment__text" ]
-        [ div [ innerHtml comment.text ] []
-        , p []
-            [ a [] [ text "reply" ]
+    let
+        link =
+            "https://news.ycombinator.com/reply?id=" ++ comment.id
+    in
+        div [ class "Comment__text" ]
+            [ div [ innerHtml comment.text ] []
+            , p []
+                [ a [ Html.Attributes.href link ] [ text "reply" ]
+                ]
             ]
-        ]
 
 
 kids : Kids -> List Comment
