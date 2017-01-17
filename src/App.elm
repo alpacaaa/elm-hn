@@ -8,13 +8,14 @@ import Time
 import Task
 import Http
 import Set
-import Types exposing (Story, Comment, Kids(..), Collapsible(..))
-import Api
 import Erl as Url
 import Date.Distance
 import Navigation
 import Json.Decode
 import Json.Encode
+import Api
+import Types exposing (Story, Comment, Kids(..), Collapsible(..))
+import UserProfile
 
 
 type alias Model =
@@ -35,6 +36,7 @@ type alias Context =
 type Route
     = Home Int
     | Story String
+    | User String
     | NotFound
 
 
@@ -111,6 +113,9 @@ routeByLocation loc =
 
             "story" :: id :: [] ->
                 Story id
+
+            "user" :: id :: [] ->
+                User id
 
             _ ->
                 NotFound
@@ -465,6 +470,9 @@ mainContent model =
             Story _ ->
                 Maybe.map (storyMainContent ctx) model.story
                     |> Maybe.withDefault notFound
+
+            User _ ->
+                UserProfile.page
 
             _ ->
                 notFound
