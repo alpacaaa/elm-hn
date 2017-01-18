@@ -16,6 +16,7 @@ import Json.Encode
 import Api
 import Types exposing (Model, Msg(..), Route(..), Context, Story, Comment, User, Kids(..), Collapsible(..))
 import UserProfile
+import Utils exposing (formatTime, innerHtml)
 
 
 onLocationChange : Navigation.Location -> Msg
@@ -249,23 +250,6 @@ spinner =
 listItemNews : Context -> Story -> Html Msg
 listItemNews ctx story =
     li [ class "ListItem" ] <| itemContent ctx story
-
-
-formatTime : Time.Time -> Int -> String
-formatTime nowMs ms =
-    let
-        now =
-            Date.fromTime nowMs
-
-        date =
-            Date.fromTime <| toFloat ms * 1000
-    in
-        (Date.Distance.inWords date now) ++ " ago"
-
-
-innerHtml : String -> Html.Attribute Msg
-innerHtml content =
-    Html.Attributes.property "innerHTML" <| Json.Encode.string content
 
 
 storyTitle : Story -> Html Msg
