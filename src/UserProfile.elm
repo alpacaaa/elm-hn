@@ -24,7 +24,7 @@ page { now } user =
             [ h4 [] [ text user.id ]
             , dl [] <|
                 [ dt [] [ text "Created" ]
-                , dd [] [ text "some date" ]
+                , dd [] [ text <| formatTime now user.created ]
                 ]
                     ++ about
             ]
