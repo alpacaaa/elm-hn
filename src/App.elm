@@ -99,7 +99,7 @@ getPage query =
     query
         |> List.filterMap getPageHelper
         |> List.head
-        |> Maybe.withDefault 0
+        |> Maybe.withDefault 1
 
 
 getPageHelper : ( String, String ) -> Maybe Int
