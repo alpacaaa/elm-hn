@@ -213,7 +213,12 @@ renderHost url =
 
 linkToStory : String -> String
 linkToStory id =
-    "story/" ++ id
+    "/story/" ++ id
+
+
+linkToUser : String -> String
+linkToUser id =
+    "/user/" ++ id
 
 
 renderCommentsCount : String -> Int -> Html Msg
@@ -297,7 +302,7 @@ itemContent { now } story =
         [ span [ class "Item__score" ] [ text <| (toString story.score) ++ " points" ]
         , text " "
         , span [ class "Item__by" ]
-            [ a [] [ text story.user ]
+            [ a (href (linkToUser story.user)) [ text story.user ]
             ]
         , text " "
         , time [ class "Item__time" ] [ text <| formatTime now story.time ]

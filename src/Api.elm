@@ -95,7 +95,7 @@ commentDecoder =
         |> Pipeline.required "id" Decode.string
         |> Pipeline.optional "text" Decode.string ""
         |> Pipeline.optional "score" Decode.int 0
-        |> Pipeline.requiredAt [ "by", "id" ] Decode.string
+        |> Pipeline.optionalAt [ "by", "id" ] Decode.string ""
         |> Pipeline.optional "time" Decode.int 0
         |> Pipeline.optional "kids" kidsDecoder (Kids [])
 
