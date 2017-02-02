@@ -33,7 +33,7 @@ init location =
 
         defaultModel =
             { stories = NotAsked
-            , story = Nothing
+            , story = NotAsked
             , user = Nothing
             , now = 0
             , route = currentRoute
@@ -52,20 +52,17 @@ init location =
 loadStatus : Model -> Route -> Model
 loadStatus model route =
     case route of
+        HomeRoute _ ->
+            { model | stories = Loading }
+
+        StoryRoute _ ->
+            { model | story = Loading }
+
+        UserRoute _ ->
+            { model | user = Nothing }
+
         _ ->
-            { model | stories = Loading, story = Nothing, user = Nothing }
-
-
-
---
--- StoryRoute _ ->
---     { stories = NotAsked, story = Nothing, user = Nothing }
---
--- UserRoute _ ->
---     { stories = NotAsked, story = Nothing, user = Nothing }
---
--- _ ->
---     { stories = NotAsked, story = Nothing, user = Nothing }
+            model
 
 
 cmdsForRoute : Route -> List (Cmd Msg)
@@ -140,7 +137,11 @@ update msg model =
             { model | now = time } ! []
 
         RouteUpdate route ->
-            { model | route = route } ! cmdsForRoute route
+            let
+                newModel =
+                    loadStatus { model | route = route } route
+            in
+                newModel ! cmdsForRoute route
 
         FetchHNTopStories (Ok stories) ->
             { model | stories = Success stories } ! []
@@ -149,7 +150,7 @@ update msg model =
             logErr model err
 
         FetchHNStory (Ok story) ->
-            { model | story = Just story } ! []
+            { model | story = Success story } ! []
 
         FetchHNStory (Err err) ->
             logErr model err
@@ -466,8 +467,7 @@ mainContent model =
                 remoteContent model.stories (homeMainContent ctx)
 
             StoryRoute _ ->
-                Maybe.map (storyMainContent ctx) model.story
-                    |> Maybe.withDefault notFound
+                remoteContent model.story (storyMainContent ctx)
 
             UserRoute _ ->
                 Maybe.map (UserProfile.page ctx) model.user

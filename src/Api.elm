@@ -77,7 +77,7 @@ storyDecoder =
         |> Pipeline.required "id" Decode.string
         |> Pipeline.required "title" Decode.string
         |> Pipeline.optional "score" Decode.int 0
-        |> Pipeline.requiredAt [ "by", "id" ] Decode.string
+        |> Pipeline.optionalAt [ "by", "id" ] Decode.string ""
         |> Pipeline.optional "time" Decode.int 0
         |> Pipeline.optional "descendants" (Decode.nullable Decode.int) Nothing
         |> Pipeline.optional "kids" (Decode.list commentDecoder) []
