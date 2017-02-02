@@ -437,6 +437,22 @@ notFound =
     div [] [ text "Not found" ]
 
 
+remoteContent : WebData a -> (a -> Html Msg) -> Html Msg
+remoteContent data createHtml =
+    case data of
+        NotAsked ->
+            text ""
+
+        Loading ->
+            text "Loading"
+
+        Success a ->
+            createHtml a
+
+        Failure err ->
+            text "some error :("
+
+
 mainContent : Model -> Html Msg
 mainContent model =
     let
@@ -447,18 +463,7 @@ mainContent model =
     in
         case model.route of
             HomeRoute page ->
-                case model.stories of
-                    NotAsked ->
-                        text ""
-
-                    Loading ->
-                        text "Loading"
-
-                    Success stories ->
-                        homeMainContent ctx stories
-
-                    Failure err ->
-                        text "some error :("
+                remoteContent model.stories (homeMainContent ctx)
 
             StoryRoute _ ->
                 Maybe.map (storyMainContent ctx) model.story
