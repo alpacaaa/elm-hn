@@ -3,16 +3,14 @@ module App exposing (..)
 import Html exposing (..)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (class, style, src, width, height, alt)
-import Date
 import Time
 import Task
 import Http
 import Set
 import Erl as Url
-import Date.Distance
 import Navigation
+import RemoteData exposing (WebData, RemoteData(..))
 import Json.Decode
-import Json.Encode
 import Api
 import Types exposing (Model, Msg(..), Route(..), Context, Story, Comment, User, Kids(..), Collapsible(..))
 import UserProfile
@@ -33,8 +31,8 @@ init location =
         currentRoute =
             routeByLocation location
 
-        initialModel =
-            { stories = []
+        defaultModel =
+            { stories = NotAsked
             , story = Nothing
             , user = Nothing
             , now = 0
@@ -42,10 +40,32 @@ init location =
             , collapsedComments = Set.empty
             }
 
+        initialModel =
+            loadStatus defaultModel currentRoute
+
         cmds =
             cmdsForRoute currentRoute
     in
         initialModel ! (currentTime :: cmds)
+
+
+loadStatus : Model -> Route -> Model
+loadStatus model route =
+    case route of
+        _ ->
+            { model | stories = Loading, story = Nothing, user = Nothing }
+
+
+
+--
+-- StoryRoute _ ->
+--     { stories = NotAsked, story = Nothing, user = Nothing }
+--
+-- UserRoute _ ->
+--     { stories = NotAsked, story = Nothing, user = Nothing }
+--
+-- _ ->
+--     { stories = NotAsked, story = Nothing, user = Nothing }
 
 
 cmdsForRoute : Route -> List (Cmd Msg)
@@ -123,7 +143,7 @@ update msg model =
             { model | route = route } ! cmdsForRoute route
 
         FetchHNTopStories (Ok stories) ->
-            { model | stories = stories } ! []
+            { model | stories = Success stories } ! []
 
         FetchHNTopStories (Err err) ->
             logErr model err
@@ -427,7 +447,18 @@ mainContent model =
     in
         case model.route of
             HomeRoute page ->
-                homeMainContent ctx model.stories
+                case model.stories of
+                    NotAsked ->
+                        text ""
+
+                    Loading ->
+                        text "Loading"
+
+                    Success stories ->
+                        homeMainContent ctx stories
+
+                    Failure err ->
+                        text "some error :("
 
             StoryRoute _ ->
                 Maybe.map (storyMainContent ctx) model.story

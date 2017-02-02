@@ -14,10 +14,11 @@ module Types
 import Set
 import Time
 import Http
+import RemoteData exposing (WebData)
 
 
 type alias Model =
-    { stories : List Story
+    { stories : WebData (List Story)
     , story : Maybe Story
     , user : Maybe User
     , now : Time.Time
