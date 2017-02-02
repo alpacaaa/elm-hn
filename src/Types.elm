@@ -60,6 +60,8 @@ type alias Story =
     , commentsCount : Maybe Int
     , comments : List Comment
     , url : Maybe String
+    , deleted : Bool
+    , dead : Bool
     }
 
 
@@ -70,6 +72,8 @@ type alias Comment =
     , user : String
     , time : Int
     , kids : Kids
+    , deleted : Bool
+    , dead : Bool
     }
 
 
@@ -86,4 +90,6 @@ type alias User =
     { id : String
     , created : Int
     , about : Maybe String
+    , deleted : Bool
+    , dead : Bool
     }

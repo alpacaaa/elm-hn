@@ -71,6 +71,18 @@ argsToString args =
             "( " ++ str ++ " )"
 
 
+skipDeleted :
+    Decode.Decoder (List { a | deleted : Bool, dead : Bool })
+    -> Decode.Decoder (List { a | deleted : Bool, dead : Bool })
+skipDeleted decoder =
+    let
+        skip =
+            List.filter (\{ deleted, dead } -> not <| deleted || dead)
+    in
+        decoder
+            |> Decode.andThen (Decode.succeed << skip)
+
+
 storyDecoder : Decode.Decoder Story
 storyDecoder =
     Pipeline.decode Story
@@ -80,13 +92,15 @@ storyDecoder =
         |> Pipeline.optionalAt [ "by", "id" ] Decode.string ""
         |> Pipeline.optional "time" Decode.int 0
         |> Pipeline.optional "descendants" (Decode.nullable Decode.int) Nothing
-        |> Pipeline.optional "kids" (Decode.list commentDecoder) []
+        |> Pipeline.optional "kids" (Decode.list commentDecoder |> skipDeleted) []
         |> Pipeline.optional "url" (Decode.nullable Decode.string) Nothing
+        |> Pipeline.optional "deleted" Decode.bool False
+        |> Pipeline.optional "dead" Decode.bool False
 
 
 kidsDecoder : Decode.Decoder Kids
 kidsDecoder =
-    Decode.lazy (\_ -> Decode.list commentDecoder |> Decode.map Kids)
+    Decode.lazy (\_ -> Decode.list commentDecoder |> skipDeleted |> Decode.map Kids)
 
 
 commentDecoder : Decode.Decoder Comment
@@ -98,6 +112,8 @@ commentDecoder =
         |> Pipeline.optionalAt [ "by", "id" ] Decode.string ""
         |> Pipeline.optional "time" Decode.int 0
         |> Pipeline.optional "kids" kidsDecoder (Kids [])
+        |> Pipeline.optional "deleted" Decode.bool False
+        |> Pipeline.optional "dead" Decode.bool False
 
 
 userDecoder : Decode.Decoder User
@@ -106,6 +122,8 @@ userDecoder =
         |> Pipeline.required "id" Decode.string
         |> Pipeline.optional "created" Decode.int 0
         |> Pipeline.optional "about" (Decode.nullable Decode.string) Nothing
+        |> Pipeline.optional "deleted" Decode.bool False
+        |> Pipeline.optional "dead" Decode.bool False
 
 
 topStoriesQuery : Int -> Query
@@ -123,6 +141,8 @@ topStoriesQuery offset =
                     [ field "id" []
                     ]
                 , field "descendants" []
+                , field "deleted" []
+                , field "dead" []
                 ]
             ]
         ]
@@ -141,7 +161,7 @@ fetchTopStories offset =
 
         decoder =
             Decode.at [ "data", "hn", "topStories" ] <|
-                Decode.list storyDecoder
+                skipDeleted (Decode.list storyDecoder)
     in
         Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
 
@@ -155,6 +175,8 @@ commentFields =
     , field "by"
         [ field "id" []
         ]
+    , field "deleted" []
+    , field "dead" []
     ]
 
 
@@ -185,6 +207,8 @@ storyQuery id =
                     [ field "id" []
                     ]
                 , fetchKids 5
+                , field "deleted" []
+                , field "dead" []
                 ]
             ]
         ]
@@ -216,6 +240,8 @@ userQuery id =
                 [ field "id" []
                 , field "created" []
                 , field "about" []
+                , field "deleted" []
+                , field "dead" []
                 ]
             ]
         ]
