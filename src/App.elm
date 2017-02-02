@@ -340,15 +340,19 @@ collapsible id collapsed =
 
 commentMeta : Context -> Comment -> Collapsible -> Html Msg
 commentMeta { now } comment collapsed =
-    div [ class "Comment__meta" ]
-        [ collapsible comment.id collapsed
-        , text " "
-        , a [ class "Comment__user" ] [ text comment.user ]
-        , text " "
-        , time [] [ text <| formatTime now comment.time ]
-        , text " | "
-        , a [] [ text "link" ]
-        ]
+    let
+        link =
+            "https://news.ycombinator.com/item?id=" ++ comment.id
+    in
+        div [ class "Comment__meta" ]
+            [ collapsible comment.id collapsed
+            , text " "
+            , a [ class "Comment__user" ] [ text comment.user ]
+            , text " "
+            , a [ Html.Attributes.href link ]
+                [ time [] [ text <| formatTime now comment.time ]
+                ]
+            ]
 
 
 commentText : Comment -> Html Msg
