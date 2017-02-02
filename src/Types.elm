@@ -20,7 +20,7 @@ import RemoteData exposing (WebData)
 type alias Model =
     { stories : WebData (List Story)
     , story : WebData Story
-    , user : Maybe User
+    , user : WebData User
     , now : Time.Time
     , route : Route
     , collapsedComments : Set.Set String

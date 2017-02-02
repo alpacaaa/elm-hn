@@ -34,7 +34,7 @@ init location =
         defaultModel =
             { stories = NotAsked
             , story = NotAsked
-            , user = Nothing
+            , user = NotAsked
             , now = 0
             , route = currentRoute
             , collapsedComments = Set.empty
@@ -59,7 +59,7 @@ loadStatus model route =
             { model | story = Loading }
 
         UserRoute _ ->
-            { model | user = Nothing }
+            { model | user = Loading }
 
         _ ->
             model
@@ -156,7 +156,7 @@ update msg model =
             logErr model err
 
         FetchHNUser (Ok user) ->
-            { model | user = Just user } ! []
+            { model | user = Success user } ! []
 
         FetchHNUser (Err err) ->
             logErr model err
@@ -470,8 +470,7 @@ mainContent model =
                 remoteContent model.story (storyMainContent ctx)
 
             UserRoute _ ->
-                Maybe.map (UserProfile.page ctx) model.user
-                    |> Maybe.withDefault notFound
+                remoteContent model.user (UserProfile.page ctx)
 
             _ ->
                 notFound
