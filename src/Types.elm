@@ -30,6 +30,7 @@ type alias Model =
 type alias Context =
     { now : Time.Time
     , collapsedComments : Set.Set String
+    , page : Int
     }
 
 

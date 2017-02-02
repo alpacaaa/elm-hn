@@ -239,17 +239,17 @@ maybeRender fn maybeValue =
         |> Maybe.withDefault (text "")
 
 
-paginator : Html Msg
-paginator =
-    div [ class "Paginator" ]
-        [ span [ class "Paginator__prev" ]
-            [ a [] [ text "Prev" ]
+paginator : Int -> Html Msg
+paginator page =
+    let
+        next =
+            "?page=" ++ (toString <| page + 1)
+    in
+        div [ class "Paginator" ]
+            [ span [ class "Paginator__next" ]
+                [ a [ Html.Attributes.href next ] [ text "More" ]
+                ]
             ]
-        , text " | "
-        , span [ class "Paginator__next" ]
-            [ a [] [ text "More" ]
-            ]
-        ]
 
 
 listItemLoading : Html Msg
@@ -421,14 +421,23 @@ commentsTree ctx story =
     List.map (singleComment ctx 0) story.comments
 
 
+listStartAttribute : Int -> Html.Attribute Msg
+listStartAttribute page =
+    let
+        index =
+            (page - 1) * 30 + 1
+    in
+        Html.Attributes.start index
+
+
 homeMainContent : Context -> List Story -> Html Msg
 homeMainContent ctx stories =
     div [ class "Items" ]
-        [ ol [ class "Items__list" ] <|
+        [ ol [ class "Items__list", listStartAttribute ctx.page ] <|
             List.map
                 (listItemNews ctx)
                 stories
-        , paginator
+        , paginator ctx.page
           -- , itemDetail
         ]
 
@@ -469,11 +478,12 @@ mainContent model =
         ctx =
             { now = model.now
             , collapsedComments = model.collapsedComments
+            , page = 1
             }
     in
         case model.route of
             HomeRoute page ->
-                remoteContent model.stories (homeMainContent ctx)
+                remoteContent model.stories (homeMainContent { ctx | page = page })
 
             StoryRoute _ ->
                 remoteContent model.story (storyMainContent ctx)
