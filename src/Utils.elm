@@ -24,3 +24,9 @@ formatTime nowMs ms =
 innerHtml : String -> Html.Attribute Types.Msg
 innerHtml content =
     Html.Attributes.property "innerHTML" <| Json.Encode.string content
+
+
+maybeRender : (a -> Html.Html b) -> Maybe a -> Html.Html b
+maybeRender fn maybeValue =
+    Maybe.map fn maybeValue
+        |> Maybe.withDefault (Html.text "")

@@ -9,7 +9,8 @@ import RemoteData exposing (RemoteData(..), WebData)
 import Json.Decode
 import Types exposing (..)
 import UserProfile
-import Utils exposing (formatTime, innerHtml)
+import Stories
+import Utils exposing (formatTime, innerHtml, maybeRender)
 
 
 href : String -> List (Html.Attribute Msg)
@@ -57,12 +58,6 @@ renderCommentsCount id comments =
         a (href (linkToStory id)) [ text str ]
 
 
-maybeRender : (a -> Html Msg) -> Maybe a -> Html Msg
-maybeRender fn maybeValue =
-    Maybe.map fn maybeValue
-        |> Maybe.withDefault (text "")
-
-
 paginator : Int -> Html Msg
 paginator page =
     let
@@ -95,11 +90,6 @@ spinner =
         , spinnerBouncer
         , spinnerBouncer
         ]
-
-
-listItemNews : Context -> Story -> Html Msg
-listItemNews ctx story =
-    li [ class "ListItem" ] <| itemContent ctx story
 
 
 storyTitle : Story -> Html Msg
@@ -245,27 +235,6 @@ commentsTree ctx story =
     List.map (singleComment ctx 0) story.comments
 
 
-listStartAttribute : Int -> Html.Attribute Msg
-listStartAttribute page =
-    let
-        index =
-            (page - 1) * 30 + 1
-    in
-        Html.Attributes.start index
-
-
-homeMainContent : Context -> List Story -> Html Msg
-homeMainContent ctx stories =
-    div [ class "Items" ]
-        [ ol [ class "Items__list", listStartAttribute ctx.page ] <|
-            List.map
-                (listItemNews ctx)
-                stories
-        , paginator ctx.page
-          -- , itemDetail
-        ]
-
-
 storyMainContent : Context -> Story -> Html Msg
 storyMainContent ctx story =
     div [ class "Items" ]
@@ -307,7 +276,7 @@ mainContent model =
     in
         case model.route of
             HomeRoute { page, stories } ->
-                remoteContent stories (homeMainContent { ctx | page = page })
+                remoteContent stories (Stories.view { now = model.now, page = page })
 
             StoryRoute { story, collapsedComments } ->
                 remoteContent story (storyMainContent { ctx | collapsedComments = collapsedComments })

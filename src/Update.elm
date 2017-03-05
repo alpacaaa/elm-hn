@@ -16,10 +16,6 @@ onLocationChange loc =
     RouteUpdate <| routeByLocation loc
 
 
-
--- toggleCollapseHelper : String -> Collapsible -> Collapsible
-
-
 toggleCollapseHelper id state comments =
     let
         operation =
