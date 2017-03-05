@@ -1,10 +1,16 @@
 module Main exposing (..)
 
-import App exposing (..)
+import App
 import Types
+import Update
 import Navigation
 
 
 main : Program Never Types.Model Types.Msg
 main =
-    Navigation.program onLocationChange { view = view, init = init, update = update, subscriptions = subscriptions }
+    Navigation.program Update.onLocationChange
+        { view = App.view
+        , init = Update.init
+        , update = Update.update
+        , subscriptions = Update.subscriptions
+        }

@@ -9,7 +9,7 @@ import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline as Pipeline
-import Types exposing (Story, Comment, User, Kids(..), Collapsible(..))
+import Types exposing (..)
 
 
 type alias Field =
