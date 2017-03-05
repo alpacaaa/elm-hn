@@ -91,6 +91,4 @@ type alias User =
     { id : String
     , created : Int
     , about : Maybe String
-    , deleted : Bool
-    , dead : Bool
     }

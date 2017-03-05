@@ -122,8 +122,6 @@ userDecoder =
         |> Pipeline.required "id" Decode.string
         |> Pipeline.optional "created" Decode.int 0
         |> Pipeline.optional "about" (Decode.nullable Decode.string) Nothing
-        |> Pipeline.optional "deleted" Decode.bool False
-        |> Pipeline.optional "dead" Decode.bool False
 
 
 topStoriesQuery : Int -> Query
@@ -240,8 +238,6 @@ userQuery id =
                 [ field "id" []
                 , field "created" []
                 , field "about" []
-                , field "deleted" []
-                , field "dead" []
                 ]
             ]
         ]

@@ -12,7 +12,7 @@ import Navigation
 import RemoteData exposing (WebData, RemoteData(..))
 import Json.Decode
 import Api
-import Types exposing (Model, Msg(..), Route(..), Context, Story, Comment, User, Kids(..), Collapsible(..))
+import Types exposing (..)
 import UserProfile
 import Utils exposing (formatTime, innerHtml)
 

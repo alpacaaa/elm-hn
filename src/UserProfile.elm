@@ -1,8 +1,8 @@
-module UserProfile exposing (..)
+module UserProfile exposing (page)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
-import Types exposing (Context, User, Msg)
+import Types exposing (..)
 import Utils exposing (formatTime, innerHtml)
 
 
@@ -42,6 +42,8 @@ page { now } user =
         about =
             Maybe.map aboutSection user.about
                 |> Maybe.withDefault [ text "" ]
+                |> p []
+                |> List.singleton
     in
         div [ class "Comment__text UserProfile" ]
             [ h4 [] [ text user.id ]
