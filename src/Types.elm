@@ -12,32 +12,28 @@ module Types
         )
 
 import Set
-import Time
+import Time exposing (Time)
 import Http
 import RemoteData exposing (WebData)
 
 
 type alias Model =
-    { stories : WebData (List Story)
-    , story : WebData Story
-    , user : WebData User
-    , now : Time.Time
+    { now : Time
     , route : Route
-    , collapsedComments : Set.Set String
     }
 
 
 type alias Context =
-    { now : Time.Time
+    { now : Time
     , collapsedComments : Set.Set String
     , page : Int
     }
 
 
 type Route
-    = HomeRoute Int
-    | StoryRoute String
-    | UserRoute String
+    = HomeRoute { page : Int, stories : WebData (List Story) }
+    | StoryRoute { id : String, story : WebData Story, collapsedComments : Set.Set String }
+    | UserRoute { id : String, user : WebData User }
     | NotFoundRoute
 
 
@@ -46,7 +42,7 @@ type Msg
     | FetchHNTopStories (Result Http.Error (List Story))
     | FetchHNStory (Result Http.Error Story)
     | FetchHNUser (Result Http.Error User)
-    | CurrentTime Time.Time
+    | CurrentTime Time
     | RouteUpdate Route
     | Go String
     | ToggleCollapse String Collapsible

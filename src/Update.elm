@@ -16,8 +16,11 @@ onLocationChange loc =
     RouteUpdate <| routeByLocation loc
 
 
-toggleCollapseHelper : String -> Collapsible -> Model -> Model
-toggleCollapseHelper id state model =
+
+-- toggleCollapseHelper : String -> Collapsible -> Collapsible
+
+
+toggleCollapseHelper id state comments =
     let
         operation =
             case state of
@@ -27,9 +30,7 @@ toggleCollapseHelper id state model =
                 Closed ->
                     Set.remove
     in
-        { model
-            | collapsedComments = operation id model.collapsedComments
-        }
+        operation id comments
 
 
 init : Navigation.Location -> ( Model, Cmd Msg )
@@ -42,16 +43,10 @@ init location =
             routeByLocation location
 
         defaultModel =
-            { stories = NotAsked
-            , story = NotAsked
-            , user = NotAsked
-            , now = 0
-            , route = currentRoute
-            , collapsedComments = Set.empty
-            }
+            { now = 0 }
 
         initialModel =
-            loadStatus defaultModel currentRoute
+            { now = 0, route = currentRoute }
 
         cmds =
             cmdsForRoute currentRoute
@@ -59,32 +54,16 @@ init location =
         initialModel ! (currentTime :: cmds)
 
 
-loadStatus : Model -> Route -> Model
-loadStatus model route =
-    case route of
-        HomeRoute _ ->
-            { model | stories = Loading }
-
-        StoryRoute _ ->
-            { model | story = Loading }
-
-        UserRoute _ ->
-            { model | user = Loading }
-
-        _ ->
-            model
-
-
 cmdsForRoute : Route -> List (Cmd Msg)
 cmdsForRoute route =
     case route of
-        HomeRoute page ->
+        HomeRoute { page } ->
             [ Http.send FetchHNTopStories <| Api.fetchTopStories ((page - 1) * 30) ]
 
-        StoryRoute id ->
+        StoryRoute { id } ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
 
-        UserRoute id ->
+        UserRoute { id } ->
             [ Http.send FetchHNUser <| Api.fetchUser id ]
 
         _ ->
@@ -99,13 +78,23 @@ routeByLocation loc =
     in
         case parsed.path of
             [] ->
-                HomeRoute (getPage parsed.query)
+                HomeRoute
+                    { page = (getPage parsed.query)
+                    , stories = Loading
+                    }
 
             "story" :: id :: [] ->
-                StoryRoute id
+                StoryRoute
+                    { id = id
+                    , story = Loading
+                    , collapsedComments = Set.empty
+                    }
 
             "user" :: id :: [] ->
-                UserRoute id
+                UserRoute
+                    { id = id
+                    , user = Loading
+                    }
 
             _ ->
                 NotFoundRoute
@@ -137,26 +126,49 @@ update msg model =
             { model | now = time } ! []
 
         RouteUpdate route ->
-            let
-                newModel =
-                    loadStatus { model | route = route } route
-            in
-                newModel ! cmdsForRoute route
+            { model | route = route } ! cmdsForRoute route
 
         FetchHNTopStories (Ok stories) ->
-            { model | stories = Success stories } ! []
+            case model.route of
+                HomeRoute data ->
+                    let
+                        newRoute =
+                            HomeRoute { data | stories = Success stories }
+                    in
+                        { model | route = newRoute } ! []
+
+                _ ->
+                    Debug.crash "impossible"
 
         FetchHNTopStories (Err err) ->
             logErr model err
 
         FetchHNStory (Ok story) ->
-            { model | story = Success story } ! []
+            case model.route of
+                StoryRoute data ->
+                    let
+                        newRoute =
+                            StoryRoute { data | story = (Success story) }
+                    in
+                        { model | route = newRoute } ! []
+
+                _ ->
+                    Debug.crash "impossible"
 
         FetchHNStory (Err err) ->
             logErr model err
 
         FetchHNUser (Ok user) ->
-            { model | user = Success user } ! []
+            case model.route of
+                UserRoute data ->
+                    let
+                        newRoute =
+                            UserRoute { data | user = (Success user) }
+                    in
+                        { model | route = newRoute } ! []
+
+                _ ->
+                    Debug.crash "impossible"
 
         FetchHNUser (Err err) ->
             logErr model err
@@ -165,7 +177,19 @@ update msg model =
             ( model, Navigation.newUrl path )
 
         ToggleCollapse id collapsed ->
-            toggleCollapseHelper id collapsed model ! []
+            case model.route of
+                StoryRoute data ->
+                    let
+                        newCollapsed =
+                            toggleCollapseHelper id collapsed data.collapsedComments
+
+                        newRoute =
+                            StoryRoute { data | collapsedComments = newCollapsed }
+                    in
+                        { model | route = newRoute } ! []
+
+                _ ->
+                    Debug.crash "impossible"
 
 
 subscriptions : Model -> Sub Msg

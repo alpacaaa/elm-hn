@@ -301,19 +301,19 @@ mainContent model =
     let
         ctx =
             { now = model.now
-            , collapsedComments = model.collapsedComments
+            , collapsedComments = Set.empty
             , page = 1
             }
     in
         case model.route of
-            HomeRoute page ->
-                remoteContent model.stories (homeMainContent { ctx | page = page })
+            HomeRoute { page, stories } ->
+                remoteContent stories (homeMainContent { ctx | page = page })
 
-            StoryRoute _ ->
-                remoteContent model.story (storyMainContent ctx)
+            StoryRoute { story, collapsedComments } ->
+                remoteContent story (storyMainContent { ctx | collapsedComments = collapsedComments })
 
-            UserRoute _ ->
-                remoteContent model.user (UserProfile.page ctx)
+            UserRoute { user } ->
+                remoteContent user (UserProfile.page ctx)
 
             _ ->
                 notFound
