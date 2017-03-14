@@ -334,23 +334,121 @@ renderAppOrError model =
             errorView err
 
 
+type alias HeaderLinkConfig =
+    { storyType : StoryType
+    , path : String
+    , text : String
+    , class : String
+    }
+
+
+headerLink : Maybe StoryType -> HeaderLinkConfig -> Html Msg
+headerLink activeStoryType config =
+    let
+        link =
+            href config.path
+
+        isActive =
+            Maybe.map ((==) config.storyType) activeStoryType
+                |> Maybe.withDefault False
+
+        classes =
+            config.class
+                ++ (if isActive then
+                        " active"
+                    else
+                        ""
+                   )
+    in
+        a (link ++ [ class classes ]) [ text config.text ]
+
+
+routeToStoryType : Route -> Maybe StoryType
+routeToStoryType route =
+    case route of
+        TopStoriesRoute _ ->
+            Just Top
+
+        NewestStoriesRoute _ ->
+            Just Newest
+
+        ShowStoriesRoute _ ->
+            Just Show
+
+        AskStoriesRoute _ ->
+            Just Ask
+
+        JobsStoriesRoute _ ->
+            Just Jobs
+
+        StoryRoute _ ->
+            Nothing
+
+        UserRoute _ ->
+            Nothing
+
+        NotFoundRoute ->
+            Nothing
+
+
+header : Route -> Html Msg
+header route =
+    let
+        activeStoryType =
+            routeToStoryType route
+
+        elmHn =
+            { storyType = Top
+            , path = "/"
+            , class = "App__homelink"
+            , text = "Elm HN"
+            }
+
+        new =
+            { storyType = Newest
+            , path = "/newest"
+            , class = ""
+            , text = "new"
+            }
+
+        show =
+            { storyType = Show
+            , path = "/show"
+            , class = ""
+            , text = "show"
+            }
+
+        ask =
+            { storyType = Ask
+            , path = "/ask"
+            , class = ""
+            , text = "ask"
+            }
+
+        jobs =
+            { storyType = Jobs
+            , path = "/jobs"
+            , class = ""
+            , text = "jobs"
+            }
+
+        navLinks =
+            [ new, show, ask, jobs ]
+                |> List.map (headerLink activeStoryType)
+                |> List.intersperse (text " | ")
+    in
+        div [ class "App__header" ] <|
+            [ a [ class "App__homelinkicon" ] []
+            ]
+                ++ [ headerLink activeStoryType elmHn ]
+                ++ navLinks
+
+
 view : Model -> Html Msg
 view model =
     div [ class "App" ]
         [ div [ class "App__wrap" ]
-            [ div [ class "App__header" ]
-                [ a [ class "App__homelinkicon" ]
-                    []
-                , a (href "/" ++ [ class "App__homelink" ])
-                    [ text "Elm HN" ]
-                , a (href "/newest") [ text "new" ]
-                , text " | "
-                , a (href "/show") [ text "show" ]
-                , text " | "
-                , a (href "/ask") [ text "ask" ]
-                , text " | "
-                , a (href "/jobs") [ text "jobs" ]
-                ]
+            [ header model.route
             , div [ class "App__content" ]
                 [ renderAppOrError model ]
             , div [ class "App__footer" ]

@@ -1,10 +1,6 @@
 module Stories exposing (view)
 
 import Html exposing (..)
-
-
--- import Html.Events exposing (..)
-
 import Html.Attributes exposing (class)
 import Html.Events
 import Json.Decode
