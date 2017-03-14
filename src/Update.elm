@@ -182,7 +182,7 @@ update msg model =
                             updateRouteModelWithStories model data stories TopStoriesRoute
 
                         _ ->
-                            Debug.crash "impossible"
+                            model ! []
 
                 Newest ->
                     case model.route of
@@ -190,15 +190,15 @@ update msg model =
                             updateRouteModelWithStories model data stories NewestStoriesRoute
 
                         _ ->
-                            Debug.crash "impossible"
+                            model ! []
 
                 Show ->
                     case model.route of
-                        NewestStoriesRoute data ->
+                        ShowStoriesRoute data ->
                             updateRouteModelWithStories model data stories ShowStoriesRoute
 
                         _ ->
-                            Debug.crash "impossible"
+                            model ! []
 
                 Ask ->
                     case model.route of
@@ -206,7 +206,7 @@ update msg model =
                             updateRouteModelWithStories model data stories AskStoriesRoute
 
                         _ ->
-                            Debug.crash "impossible"
+                            model ! []
 
                 Jobs ->
                     case model.route of
@@ -214,7 +214,7 @@ update msg model =
                             updateRouteModelWithStories model data stories JobsStoriesRoute
 
                         _ ->
-                            Debug.crash "impossible"
+                            model ! []
 
         FetchHNStories route (Err err) ->
             logErr model err
@@ -229,7 +229,7 @@ update msg model =
                         { model | route = newRoute } ! []
 
                 _ ->
-                    Debug.crash "impossible"
+                    model ! []
 
         FetchHNStory (Err err) ->
             logErr model err
@@ -244,7 +244,7 @@ update msg model =
                         { model | route = newRoute } ! []
 
                 _ ->
-                    Debug.crash "impossible"
+                    model ! []
 
         FetchHNUser (Err err) ->
             logErr model err
@@ -265,7 +265,7 @@ update msg model =
                         { model | route = newRoute } ! []
 
                 _ ->
-                    Debug.crash "impossible"
+                    model ! []
 
 
 subscriptions : Model -> Sub Msg
