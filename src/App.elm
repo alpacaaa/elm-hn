@@ -71,13 +71,6 @@ paginator page =
             ]
 
 
-listItemLoading : Html Msg
-listItemLoading =
-    li [ class "ListItem ListItem--loading" ]
-        [ spinner
-        ]
-
-
 spinnerBouncer : Html Msg
 spinnerBouncer =
     div [ class "bounce1", style [ ( "width", "6px" ), ( "height", "6px" ) ] ] []
@@ -249,6 +242,18 @@ notFound =
     div [] [ text "Not found" ]
 
 
+loadingView : Html Msg
+loadingView =
+    div [ class "Items" ]
+        [ ol [ class "Items__list" ]
+            [ div [ class "Item" ]
+                [ div [ class "Item__title" ]
+                    [ text "Loading..." ]
+                ]
+            ]
+        ]
+
+
 remoteContent : WebData a -> (a -> Html Msg) -> Html Msg
 remoteContent data createHtml =
     case data of
@@ -256,7 +261,7 @@ remoteContent data createHtml =
             text ""
 
         Loading ->
-            text "Loading"
+            loadingView
 
         Success a ->
             createHtml a
