@@ -14,6 +14,14 @@ import Stories
 import Utils exposing (formatTime, innerHtml, maybeRender)
 
 
+type alias HeaderLinkConfig =
+    { storyType : StoryType
+    , path : String
+    , text : String
+    , class : String
+    }
+
+
 href : String -> List (Html.Attribute Msg)
 href path =
     [ Html.Attributes.href path
@@ -232,6 +240,7 @@ notFoundView =
         ]
 
 
+genericView : List (Html Msg) -> Html Msg
 genericView content =
     div [ class "Items" ]
         [ ol [ class "Items__list" ]
@@ -314,6 +323,7 @@ mainContent model =
                 notFoundView
 
 
+renderAppOrError : Model -> Html Msg
 renderAppOrError model =
     case model.error of
         Nothing ->
@@ -321,14 +331,6 @@ renderAppOrError model =
 
         Just err ->
             errorView err
-
-
-type alias HeaderLinkConfig =
-    { storyType : StoryType
-    , path : String
-    , text : String
-    , class : String
-    }
 
 
 headerLink : Maybe StoryType -> HeaderLinkConfig -> Html Msg
