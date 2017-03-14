@@ -31,8 +31,12 @@ type alias Context =
     }
 
 
+type alias StoryList =
+    { page : Int, stories : WebData (List Story) }
+
+
 type Route
-    = HomeRoute { page : Int, stories : WebData (List Story) }
+    = TopStoriesRoute StoryList
     | StoryRoute { id : String, story : WebData Story, collapsedComments : Set.Set String }
     | UserRoute { id : String, user : WebData User }
     | NotFoundRoute
@@ -40,7 +44,7 @@ type Route
 
 type Msg
     = NoOp
-    | FetchHNTopStories (Result Http.Error (List Story))
+    | FetchHNStories (Result Http.Error (List Story))
     | FetchHNStory (Result Http.Error Story)
     | FetchHNUser (Result Http.Error User)
     | CurrentTime Time

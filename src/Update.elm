@@ -53,8 +53,8 @@ init location =
 cmdsForRoute : Route -> List (Cmd Msg)
 cmdsForRoute route =
     case route of
-        HomeRoute { page } ->
-            [ Http.send FetchHNTopStories <| Api.fetchStories Top ((page - 1) * 30) ]
+        TopStoriesRoute { page } ->
+            [ Http.send FetchHNStories <| Api.fetchStories Top ((page - 1) * 30) ]
 
         StoryRoute { id } ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
@@ -74,7 +74,7 @@ routeByLocation loc =
     in
         case parsed.path of
             [] ->
-                HomeRoute
+                TopStoriesRoute
                     { page = (getPage parsed.query)
                     , stories = Loading
                     }
@@ -124,19 +124,19 @@ update msg model =
         RouteUpdate route ->
             { model | route = route } ! cmdsForRoute route
 
-        FetchHNTopStories (Ok stories) ->
+        FetchHNStories (Ok stories) ->
             case model.route of
-                HomeRoute data ->
+                TopStoriesRoute data ->
                     let
                         newRoute =
-                            HomeRoute { data | stories = Success stories }
+                            TopStoriesRoute { data | stories = Success stories }
                     in
                         { model | route = newRoute } ! []
 
                 _ ->
                     Debug.crash "impossible"
 
-        FetchHNTopStories (Err err) ->
+        FetchHNStories (Err err) ->
             logErr model err
 
         FetchHNStory (Ok story) ->

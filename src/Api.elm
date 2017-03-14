@@ -143,6 +143,7 @@ storyTypeString storyType =
             "jobStories"
 
 
+storiesQuery : StoryType -> Int -> Query
 storiesQuery storyType offset =
     Query
         [ field "hn"

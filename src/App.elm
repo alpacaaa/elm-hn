@@ -280,7 +280,7 @@ mainContent model =
             }
     in
         case model.route of
-            HomeRoute { page, stories } ->
+            TopStoriesRoute { page, stories } ->
                 remoteContent stories (Stories.view { now = model.now, page = page })
 
             StoryRoute { story, collapsedComments } ->
