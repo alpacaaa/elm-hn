@@ -7,6 +7,7 @@ import Erl as Url
 import Set
 import RemoteData exposing (RemoteData(..), WebData)
 import Json.Decode
+import Time
 import Types exposing (..)
 import UserProfile
 import Stories
@@ -270,6 +271,7 @@ remoteContent data createHtml =
             text "some error :("
 
 
+remoteConentStories : StoryList -> Time.Time -> Html Msg
 remoteConentStories { page, stories } now =
     remoteContent stories (Stories.view { now = now, page = page })
 
@@ -291,6 +293,12 @@ mainContent model =
                 remoteConentStories data model.now
 
             ShowStoriesRoute data ->
+                remoteConentStories data model.now
+
+            AskStoriesRoute data ->
+                remoteConentStories data model.now
+
+            JobsStoriesRoute data ->
                 remoteConentStories data model.now
 
             StoryRoute { story, collapsedComments } ->

@@ -16,6 +16,11 @@ onLocationChange loc =
     RouteUpdate <| routeByLocation loc
 
 
+toggleCollapseHelper :
+    comparable
+    -> Collapsible
+    -> Set.Set comparable
+    -> Set.Set comparable
 toggleCollapseHelper id state comments =
     let
         operation =
@@ -50,8 +55,9 @@ init location =
         initialModel ! (currentTime :: cmds)
 
 
+fetchStories : StoryType -> Int -> List (Cmd Msg)
 fetchStories storyType page =
-    [ Http.send FetchHNStories <| Api.fetchStories storyType ((page - 1) * 30) ]
+    [ Http.send (FetchHNStories storyType) <| Api.fetchStories storyType ((page - 1) * 30) ]
 
 
 cmdsForRoute : Route -> List (Cmd Msg)
@@ -65,6 +71,12 @@ cmdsForRoute route =
 
         ShowStoriesRoute { page } ->
             fetchStories Show page
+
+        AskStoriesRoute { page } ->
+            fetchStories Ask page
+
+        JobsStoriesRoute { page } ->
+            fetchStories Jobs page
 
         StoryRoute { id } ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
@@ -96,6 +108,12 @@ routeByLocation loc =
 
             "show" :: [] ->
                 ShowStoriesRoute <| storiesDict ()
+
+            "ask" :: [] ->
+                AskStoriesRoute <| storiesDict ()
+
+            "jobs" :: [] ->
+                JobsStoriesRoute <| storiesDict ()
 
             "story" :: id :: [] ->
                 StoryRoute
@@ -130,6 +148,12 @@ getPageHelper ( key, val ) =
         Nothing
 
 
+updateRouteModelWithStories :
+    Model
+    -> StoryList
+    -> List Story
+    -> (StoryList -> Route)
+    -> ( Model, Cmd a )
 updateRouteModelWithStories model data stories route =
     let
         newRoute =
@@ -150,29 +174,49 @@ update msg model =
         RouteUpdate route ->
             { model | route = route } ! cmdsForRoute route
 
-        FetchHNStories (Ok stories) ->
-            case model.route of
-                TopStoriesRoute data ->
-                    let
-                        newRoute =
-                            TopStoriesRoute { data | stories = Success stories }
-                    in
-                        { model | route = newRoute } ! []
+        FetchHNStories storyType (Ok stories) ->
+            case storyType of
+                Top ->
+                    case model.route of
+                        TopStoriesRoute data ->
+                            updateRouteModelWithStories model data stories TopStoriesRoute
 
-                NewestStoriesRoute data ->
-                    let
-                        newRoute =
-                            NewestStoriesRoute { data | stories = Success stories }
-                    in
-                        { model | route = newRoute } ! []
+                        _ ->
+                            Debug.crash "impossible"
 
-                ShowStoriesRoute data ->
-                    updateRouteModelWithStories model data stories ShowStoriesRoute
+                Newest ->
+                    case model.route of
+                        NewestStoriesRoute data ->
+                            updateRouteModelWithStories model data stories NewestStoriesRoute
 
-                _ ->
-                    Debug.crash "impossible"
+                        _ ->
+                            Debug.crash "impossible"
 
-        FetchHNStories (Err err) ->
+                Show ->
+                    case model.route of
+                        NewestStoriesRoute data ->
+                            updateRouteModelWithStories model data stories ShowStoriesRoute
+
+                        _ ->
+                            Debug.crash "impossible"
+
+                Ask ->
+                    case model.route of
+                        AskStoriesRoute data ->
+                            updateRouteModelWithStories model data stories AskStoriesRoute
+
+                        _ ->
+                            Debug.crash "impossible"
+
+                Jobs ->
+                    case model.route of
+                        JobsStoriesRoute data ->
+                            updateRouteModelWithStories model data stories JobsStoriesRoute
+
+                        _ ->
+                            Debug.crash "impossible"
+
+        FetchHNStories route (Err err) ->
             logErr model err
 
         FetchHNStory (Ok story) ->

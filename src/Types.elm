@@ -10,6 +10,7 @@ module Types
         , Kids(..)
         , Collapsible(..)
         , StoryType(..)
+        , StoryList
         )
 
 import Set
@@ -39,6 +40,8 @@ type Route
     = TopStoriesRoute StoryList
     | NewestStoriesRoute StoryList
     | ShowStoriesRoute StoryList
+    | AskStoriesRoute StoryList
+    | JobsStoriesRoute StoryList
     | StoryRoute { id : String, story : WebData Story, collapsedComments : Set.Set String }
     | UserRoute { id : String, user : WebData User }
     | NotFoundRoute
@@ -46,7 +49,7 @@ type Route
 
 type Msg
     = NoOp
-    | FetchHNStories (Result Http.Error (List Story))
+    | FetchHNStories StoryType (Result Http.Error (List Story))
     | FetchHNStory (Result Http.Error Story)
     | FetchHNUser (Result Http.Error User)
     | CurrentTime Time
