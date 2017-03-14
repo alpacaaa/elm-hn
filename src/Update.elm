@@ -63,13 +63,16 @@ cmdsForRoute route =
         NewestStoriesRoute { page } ->
             fetchStories Newest page
 
+        ShowStoriesRoute { page } ->
+            fetchStories Show page
+
         StoryRoute { id } ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
 
         UserRoute { id } ->
             [ Http.send FetchHNUser <| Api.fetchUser id ]
 
-        _ ->
+        NotFoundRoute ->
             []
 
 
@@ -78,19 +81,21 @@ routeByLocation loc =
     let
         parsed =
             Url.parse loc.href
+
+        storiesDict () =
+            { page = (getPage parsed.query)
+            , stories = Loading
+            }
     in
         case parsed.path of
             [] ->
-                TopStoriesRoute
-                    { page = (getPage parsed.query)
-                    , stories = Loading
-                    }
+                TopStoriesRoute <| storiesDict ()
 
             "newest" :: [] ->
-                NewestStoriesRoute
-                    { page = (getPage parsed.query)
-                    , stories = Loading
-                    }
+                NewestStoriesRoute <| storiesDict ()
+
+            "show" :: [] ->
+                ShowStoriesRoute <| storiesDict ()
 
             "story" :: id :: [] ->
                 StoryRoute
@@ -125,6 +130,14 @@ getPageHelper ( key, val ) =
         Nothing
 
 
+updateRouteModelWithStories model data stories route =
+    let
+        newRoute =
+            route { data | stories = Success stories }
+    in
+        { model | route = newRoute } ! []
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -152,6 +165,9 @@ update msg model =
                             NewestStoriesRoute { data | stories = Success stories }
                     in
                         { model | route = newRoute } ! []
+
+                ShowStoriesRoute data ->
+                    updateRouteModelWithStories model data stories ShowStoriesRoute
 
                 _ ->
                     Debug.crash "impossible"

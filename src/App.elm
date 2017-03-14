@@ -270,6 +270,10 @@ remoteContent data createHtml =
             text "some error :("
 
 
+remoteConentStories { page, stories } now =
+    remoteContent stories (Stories.view { now = now, page = page })
+
+
 mainContent : Model -> Html Msg
 mainContent model =
     let
@@ -280,11 +284,14 @@ mainContent model =
             }
     in
         case model.route of
-            TopStoriesRoute { page, stories } ->
-                remoteContent stories (Stories.view { now = model.now, page = page })
+            TopStoriesRoute data ->
+                remoteConentStories data model.now
 
-            NewestStoriesRoute { page, stories } ->
-                remoteContent stories (Stories.view { now = model.now, page = page })
+            NewestStoriesRoute data ->
+                remoteConentStories data model.now
+
+            ShowStoriesRoute data ->
+                remoteConentStories data model.now
 
             StoryRoute { story, collapsedComments } ->
                 remoteContent story (storyMainContent { ctx | collapsedComments = collapsedComments })
@@ -292,7 +299,7 @@ mainContent model =
             UserRoute { user } ->
                 remoteContent user (UserProfile.page ctx)
 
-            _ ->
+            NotFoundRoute ->
                 notFound
 
 
