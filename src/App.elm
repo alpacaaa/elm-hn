@@ -340,8 +340,7 @@ view model =
         [ div [ class "App__wrap" ]
             [ div [ class "App__header" ]
                 [ a [ class "App__homelinkicon" ]
-                    [ img [ src "https://react-hn.appspot.com/img/logo.png", width 16, height 16, alt "" ] []
-                    ]
+                    []
                 , a (href "/" ++ [ class "App__homelink" ])
                     [ text "Elm HN" ]
                 , a (href "/newest") [ text "new" ]

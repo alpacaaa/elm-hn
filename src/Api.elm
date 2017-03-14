@@ -10,6 +10,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline as Pipeline
 import Types exposing (..)
+import Maybe.Extra as MaybeX
 
 
 type alias Field =
@@ -176,9 +177,16 @@ fetchStories storyType offset =
                 Encode.object
                     [ ( "query", Encode.string query ) ]
 
+        skipNull =
+            Decode.andThen (Decode.succeed << MaybeX.values)
+
+        finalDecoder =
+            Decode.list (Decode.nullable storyDecoder)
+                |> skipNull
+                |> skipDeleted
+
         decoder =
-            Decode.at [ "data", "hn", (storyTypeString storyType) ] <|
-                skipDeleted (Decode.list storyDecoder)
+            Decode.at [ "data", "hn", (storyTypeString storyType) ] finalDecoder
     in
         Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
 
