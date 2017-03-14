@@ -72,20 +72,6 @@ paginator page =
             ]
 
 
-spinnerBouncer : Html Msg
-spinnerBouncer =
-    div [ class "bounce1", style [ ( "width", "6px" ), ( "height", "6px" ) ] ] []
-
-
-spinner : Html Msg
-spinner =
-    div [ class "Spinner" ]
-        [ spinnerBouncer
-        , spinnerBouncer
-        , spinnerBouncer
-        ]
-
-
 storyTitle : Story -> Html Msg
 storyTitle story =
     let
@@ -238,9 +224,12 @@ storyMainContent ctx story =
         ]
 
 
-notFound : Html Msg
-notFound =
-    div [] [ text "Not found" ]
+notFoundView : Html Msg
+notFoundView =
+    genericView
+        [ div [ class "Item__title" ]
+            [ text "Not Found" ]
+        ]
 
 
 genericView content =
@@ -322,7 +311,7 @@ mainContent model =
                 remoteContent user (UserProfile.page ctx)
 
             NotFoundRoute ->
-                notFound
+                notFoundView
 
 
 renderAppOrError model =
