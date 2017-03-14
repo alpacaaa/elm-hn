@@ -243,14 +243,28 @@ notFound =
     div [] [ text "Not found" ]
 
 
-loadingView : Html Msg
-loadingView =
+genericView content =
     div [ class "Items" ]
         [ ol [ class "Items__list" ]
-            [ div [ class "Item" ]
-                [ div [ class "Item__title" ]
-                    [ text "Loading..." ]
-                ]
+            [ div [ class "Item" ] content
+            ]
+        ]
+
+
+loadingView : Html Msg
+loadingView =
+    genericView
+        [ div [ class "Item__title" ]
+            [ text "Loading..." ]
+        ]
+
+
+errorView : String -> Html Msg
+errorView err =
+    genericView
+        [ text "Good News! Something blew up ¯\\_(ツ)_/¯ Here's the error."
+        , pre []
+            [ code [] [ text err ]
             ]
         ]
 
@@ -311,6 +325,15 @@ mainContent model =
                 notFound
 
 
+renderAppOrError model =
+    case model.error of
+        Nothing ->
+            mainContent model
+
+        Just err ->
+            errorView err
+
+
 view : Model -> Html Msg
 view model =
     div [ class "App" ]
@@ -328,13 +351,9 @@ view model =
                 , a (href "/ask") [ text "ask" ]
                 , text " | "
                 , a (href "/jobs") [ text "jobs" ]
-                , a [ class "App__settings" ]
-                    [ text "settings"
-                    ]
                 ]
             , div [ class "App__content" ]
-                [ mainContent model
-                ]
+                [ renderAppOrError model ]
             , div [ class "App__footer" ]
                 [ a [] [ text "elm-hn" ]
                 ]

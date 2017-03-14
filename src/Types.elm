@@ -22,6 +22,7 @@ import RemoteData exposing (WebData)
 type alias Model =
     { now : Time
     , route : Route
+    , error : Maybe String
     }
 
 

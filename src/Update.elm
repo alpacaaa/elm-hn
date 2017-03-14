@@ -47,7 +47,7 @@ init location =
             { now = 0 }
 
         initialModel =
-            { now = 0, route = currentRoute }
+            { now = 0, route = currentRoute, error = Nothing }
 
         cmds =
             cmdsForRoute currentRoute
@@ -277,6 +277,6 @@ logErr : Model -> Http.Error -> ( Model, Cmd a )
 logErr model err =
     let
         _ =
-            Debug.log "request blew up" err
+            Debug.log "Doh" err
     in
-        model ! []
+        { model | error = Just (toString err) } ! []
