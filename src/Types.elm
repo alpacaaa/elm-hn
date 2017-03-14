@@ -9,6 +9,7 @@ module Types
         , User
         , Kids(..)
         , Collapsible(..)
+        , StoryType(..)
         )
 
 import Set
@@ -88,3 +89,11 @@ type alias User =
     , created : Int
     , about : Maybe String
     }
+
+
+type StoryType
+    = Top
+    | Newest
+    | Show
+    | Ask
+    | Jobs

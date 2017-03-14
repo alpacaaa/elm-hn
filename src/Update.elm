@@ -54,7 +54,7 @@ cmdsForRoute : Route -> List (Cmd Msg)
 cmdsForRoute route =
     case route of
         HomeRoute { page } ->
-            [ Http.send FetchHNTopStories <| Api.fetchTopStories ((page - 1) * 30) ]
+            [ Http.send FetchHNTopStories <| Api.fetchStories Top ((page - 1) * 30) ]
 
         StoryRoute { id } ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]

@@ -1,6 +1,6 @@
 module Api
     exposing
-        ( fetchTopStories
+        ( fetchStories
         , fetchStory
         , fetchUser
         )
@@ -124,11 +124,29 @@ userDecoder =
         |> Pipeline.optional "about" (Decode.nullable Decode.string) Nothing
 
 
-topStoriesQuery : Int -> Query
-topStoriesQuery offset =
+storyTypeString : StoryType -> String
+storyTypeString storyType =
+    case storyType of
+        Top ->
+            "topStories"
+
+        Newest ->
+            "newStories"
+
+        Show ->
+            "showStories"
+
+        Ask ->
+            "askStories"
+
+        Jobs ->
+            "jobStories"
+
+
+storiesQuery storyType offset =
     Query
         [ field "hn"
-            [ fieldWithArgs "topStories"
+            [ fieldWithArgs (storyTypeString storyType)
                 [ ( "offset", toString offset ), ( "limit", "30" ) ]
                 [ field "id" []
                 , field "url" []
@@ -146,11 +164,11 @@ topStoriesQuery offset =
         ]
 
 
-fetchTopStories : Int -> Http.Request (List Story)
-fetchTopStories offset =
+fetchStories : StoryType -> Int -> Http.Request (List Story)
+fetchStories storyType offset =
     let
         query =
-            queryToString <| topStoriesQuery offset
+            queryToString <| storiesQuery storyType offset
 
         jsonBody =
             Http.jsonBody <|
@@ -158,7 +176,7 @@ fetchTopStories offset =
                     [ ( "query", Encode.string query ) ]
 
         decoder =
-            Decode.at [ "data", "hn", "topStories" ] <|
+            Decode.at [ "data", "hn", (storyTypeString storyType) ] <|
                 skipDeleted (Decode.list storyDecoder)
     in
         Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder

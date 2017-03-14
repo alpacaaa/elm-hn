@@ -301,17 +301,15 @@ view model =
                 [ a [ class "App__homelinkicon" ]
                     [ img [ src "https://react-hn.appspot.com/img/logo.png", width 16, height 16, alt "" ] []
                     ]
-                , a [ class "App__homelink" ]
+                , a (href "/" ++ [ class "App__homelink" ])
                     [ text "Elm HN" ]
-                , a [] [ text "new" ]
+                , a (href "/newest") [ text "new" ]
                 , text " | "
-                , a [] [ text "comments" ]
+                , a (href "/show") [ text "show" ]
                 , text " | "
-                , a [] [ text "show" ]
+                , a (href "/ask") [ text "ask" ]
                 , text " | "
-                , a [] [ text "ask" ]
-                , text " | "
-                , a [] [ text "jobs" ]
+                , a (href "/jobs") [ text "jobs" ]
                 , a [ class "App__settings" ]
                     [ text "settings"
                     ]
