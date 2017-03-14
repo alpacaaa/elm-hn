@@ -283,6 +283,9 @@ mainContent model =
             TopStoriesRoute { page, stories } ->
                 remoteContent stories (Stories.view { now = model.now, page = page })
 
+            NewestStoriesRoute { page, stories } ->
+                remoteContent stories (Stories.view { now = model.now, page = page })
+
             StoryRoute { story, collapsedComments } ->
                 remoteContent story (storyMainContent { ctx | collapsedComments = collapsedComments })
 

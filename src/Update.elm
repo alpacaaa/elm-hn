@@ -50,11 +50,18 @@ init location =
         initialModel ! (currentTime :: cmds)
 
 
+fetchStories storyType page =
+    [ Http.send FetchHNStories <| Api.fetchStories storyType ((page - 1) * 30) ]
+
+
 cmdsForRoute : Route -> List (Cmd Msg)
 cmdsForRoute route =
     case route of
         TopStoriesRoute { page } ->
-            [ Http.send FetchHNStories <| Api.fetchStories Top ((page - 1) * 30) ]
+            fetchStories Top page
+
+        NewestStoriesRoute { page } ->
+            fetchStories Newest page
 
         StoryRoute { id } ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
@@ -75,6 +82,12 @@ routeByLocation loc =
         case parsed.path of
             [] ->
                 TopStoriesRoute
+                    { page = (getPage parsed.query)
+                    , stories = Loading
+                    }
+
+            "newest" :: [] ->
+                NewestStoriesRoute
                     { page = (getPage parsed.query)
                     , stories = Loading
                     }
@@ -130,6 +143,13 @@ update msg model =
                     let
                         newRoute =
                             TopStoriesRoute { data | stories = Success stories }
+                    in
+                        { model | route = newRoute } ! []
+
+                NewestStoriesRoute data ->
+                    let
+                        newRoute =
+                            NewestStoriesRoute { data | stories = Success stories }
                     in
                         { model | route = newRoute } ! []
 

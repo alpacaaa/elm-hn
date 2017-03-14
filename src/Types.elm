@@ -37,6 +37,7 @@ type alias StoryList =
 
 type Route
     = TopStoriesRoute StoryList
+    | NewestStoriesRoute StoryList
     | StoryRoute { id : String, story : WebData Story, collapsedComments : Set.Set String }
     | UserRoute { id : String, user : WebData User }
     | NotFoundRoute
