@@ -149,7 +149,7 @@ commentMeta { now } comment collapsed =
         div [ class "Comment__meta" ]
             [ collapsible comment.id collapsed
             , text " "
-            , a [ class "Comment__user" ] [ text comment.user ]
+            , a (href (linkToUser comment.user) ++ [ class "Comment__user" ]) [ text comment.user ]
             , text " "
             , a [ Html.Attributes.href link ]
                 [ time [] [ text <| formatTime now comment.time ]
