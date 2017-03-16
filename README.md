@@ -1,6 +1,9 @@
 # [elm-hn](https://elm-hn.surge.sh)
 
-[Hacker News](https://news.ycombinator.com) clone powered by [Elm](http://elm-lang.org/) + [elm-navigation](https://github.com/elm-lang/navigation) + [GraphQL](https://www.graphqlhub.com/).
+Hacker News clone powered by Elm + elm-navigation + GraphQL.
+
+[![elm-hn screenshot](https://github.com/alpacaaa/elm-hn/raw/master/screenshot.png "Homepage")](https://elm-hn.surge.sh)
+
 
 It might take a few seconds to get a response from the server, so old tight! All errors are displayed on screen.
 
