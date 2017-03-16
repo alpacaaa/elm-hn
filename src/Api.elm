@@ -59,6 +59,7 @@ storyQuery id =
                 [ field "id" []
                 , field "url" []
                 , field "title" []
+                , field "text" []
                 , field "score" []
                 , field "time" []
                 , field "by"
@@ -171,6 +172,7 @@ storyDecoder =
     Pipeline.decode Story
         |> Pipeline.required "id" Decode.string
         |> Pipeline.required "title" Decode.string
+        |> Pipeline.optional "text" (Decode.nullable Decode.string) Nothing
         |> Pipeline.optional "score" Decode.int 0
         |> Pipeline.optionalAt [ "by", "id" ] Decode.string ""
         |> Pipeline.optional "time" Decode.int 0

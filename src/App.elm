@@ -111,6 +111,7 @@ itemContent { now } story =
         , maybeRender (\_ -> text " | ") story.commentsCount
         , maybeRender (renderCommentsCount story.id) story.commentsCount
         ]
+    , maybeRender (\text -> div [ class "Item__text" ] [ div [ innerHtml text ] [] ]) story.text
     ]
 
 

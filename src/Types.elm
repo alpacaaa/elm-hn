@@ -62,6 +62,7 @@ type Msg
 type alias Story =
     { id : String
     , title : String
+    , text : Maybe String
     , score : Int
     , user : String
     , time : Int
