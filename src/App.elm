@@ -42,7 +42,10 @@ renderHost url =
         host =
             String.join "." <| List.drop (List.length hostParts - 2) hostParts
     in
-        span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
+        if String.length host > 0 then
+            span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
+        else
+            text ""
 
 
 linkToStory : String -> String
