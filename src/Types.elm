@@ -11,6 +11,7 @@ module Types
         , Collapsible(..)
         , StoryType(..)
         , StoryList
+        , PollOption
         )
 
 import Set
@@ -71,6 +72,7 @@ type alias Story =
     , url : Maybe String
     , deleted : Bool
     , dead : Bool
+    , poll : Maybe (List PollOption)
     }
 
 
@@ -108,3 +110,9 @@ type StoryType
     | Show
     | Ask
     | Jobs
+
+
+type alias PollOption =
+    { text : String
+    , score : Int
+    }

@@ -70,6 +70,19 @@ renderCommentsCount id comments =
         a (href (linkToStory id)) [ text str ]
 
 
+renderPoll : List PollOption -> Html Msg
+renderPoll poll =
+    div [ class "Item__poll" ] <| List.map renderPollOption poll
+
+
+renderPollOption : PollOption -> Html Msg
+renderPollOption option =
+    div [ class "PollOption" ]
+        [ div [ class "PollOption__text", innerHtml option.text ] []
+        , div [ class "PollOption__score" ] [ text <| (toString option.score) ++ " points" ]
+        ]
+
+
 paginator : Int -> Html Msg
 paginator page =
     let
@@ -115,6 +128,7 @@ itemContent { now } story =
         , maybeRender (renderCommentsCount story.id) story.commentsCount
         ]
     , maybeRender (\text -> div [ class "Item__text" ] [ div [ innerHtml text ] [] ]) story.text
+    , maybeRender renderPoll story.poll
     ]
 
 

@@ -68,6 +68,10 @@ storyQuery id =
                 , fetchKids 5
                 , field "deleted" []
                 , field "dead" []
+                , field "parts"
+                    [ field "text" []
+                    , field "score" []
+                    ]
                 ]
             ]
         ]
@@ -181,6 +185,7 @@ storyDecoder =
         |> Pipeline.optional "url" (Decode.nullable Decode.string) Nothing
         |> Pipeline.optional "deleted" Decode.bool False
         |> Pipeline.optional "dead" Decode.bool False
+        |> Pipeline.optional "parts" (Decode.nullable <| Decode.list pollDecoder) Nothing
 
 
 kidsDecoder : Decode.Decoder Kids
@@ -207,6 +212,13 @@ userDecoder =
         |> Pipeline.required "id" Decode.string
         |> Pipeline.optional "created" Decode.int 0
         |> Pipeline.optional "about" (Decode.nullable Decode.string) Nothing
+
+
+pollDecoder : Decode.Decoder PollOption
+pollDecoder =
+    Pipeline.decode PollOption
+        |> Pipeline.required "text" Decode.string
+        |> Pipeline.required "score" Decode.int
 
 
 field : String -> List Field -> Field
