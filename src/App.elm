@@ -252,8 +252,8 @@ genericView content =
 loadingView : Html Msg
 loadingView =
     genericView
-        [ div [ class "Item__title" ]
-            [ text "Loading..." ]
+        [ div [ class "Item__title" ] [ text "Loading..." ]
+        , p [] [ text "api is a bit slow, hold on." ]
         ]
 
 
