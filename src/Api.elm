@@ -100,29 +100,47 @@ commentFields =
     ]
 
 
-fetchStories : StoryType -> Int -> Http.Request (List Story)
-fetchStories storyType offset =
+runQuery query decoder returnField =
     let
-        query =
-            queryToString <| storiesQuery storyType offset
+        queryStr =
+            queryToString query
 
         jsonBody =
             Http.jsonBody <|
                 Encode.object
-                    [ ( "query", Encode.string query ) ]
+                    [ ( "query", Encode.string queryStr ) ]
+
+        finalDecoder =
+            Decode.at [ "data", "hn", returnField ] decoder
+    in
+        Http.post "https://www.graphqlhub.com/graphql" jsonBody finalDecoder
+
+
+fetchStories : StoryType -> Int -> Http.Request (List Story)
+fetchStories storyType offset =
+    let
+        query =
+            storiesQuery storyType offset
 
         skipNull =
             Decode.map MaybeX.values
 
-        finalDecoder =
+        decoder =
             Decode.list (Decode.nullable storyDecoder)
                 |> skipNull
                 |> skipDeleted
-
-        decoder =
-            Decode.at [ "data", "hn", (storyTypeString storyType) ] finalDecoder
     in
-        Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
+        runQuery query decoder (storyTypeString storyType)
+
+
+fetchStory : String -> Http.Request Story
+fetchStory id =
+    runQuery (storyQuery id) storyDecoder "item"
+
+
+fetchUser : String -> Http.Request User
+fetchUser id =
+    runQuery (userQuery id) userDecoder "user"
 
 
 fetchKids : Int -> Field
@@ -135,40 +153,6 @@ fetchKids count =
                 fetchKids (count - 1) :: commentFields
     in
         field "kids" fields
-
-
-fetchStory : String -> Http.Request Story
-fetchStory id =
-    let
-        query =
-            queryToString <| storyQuery id
-
-        jsonBody =
-            Http.jsonBody <|
-                Encode.object
-                    [ ( "query", Encode.string query ) ]
-
-        decoder =
-            Decode.at [ "data", "hn", "item" ] storyDecoder
-    in
-        Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
-
-
-fetchUser : String -> Http.Request User
-fetchUser id =
-    let
-        query =
-            queryToString <| userQuery id
-
-        jsonBody =
-            Http.jsonBody <|
-                Encode.object
-                    [ ( "query", Encode.string query ) ]
-
-        decoder =
-            Decode.at [ "data", "hn", "user" ] userDecoder
-    in
-        Http.post "https://www.graphqlhub.com/graphql" jsonBody decoder
 
 
 skipDeleted :
