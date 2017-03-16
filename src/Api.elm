@@ -75,13 +75,12 @@ argsToString args =
 skipDeleted :
     Decode.Decoder (List { a | deleted : Bool, dead : Bool })
     -> Decode.Decoder (List { a | deleted : Bool, dead : Bool })
-skipDeleted decoder =
+skipDeleted =
     let
         skip =
             List.filter (\{ deleted, dead } -> not <| deleted || dead)
     in
-        decoder
-            |> Decode.andThen (Decode.succeed << skip)
+        Decode.map skip
 
 
 storyDecoder : Decode.Decoder Story
@@ -178,7 +177,7 @@ fetchStories storyType offset =
                     [ ( "query", Encode.string query ) ]
 
         skipNull =
-            Decode.andThen (Decode.succeed << MaybeX.values)
+            Decode.map MaybeX.values
 
         finalDecoder =
             Decode.list (Decode.nullable storyDecoder)
