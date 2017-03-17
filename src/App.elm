@@ -298,7 +298,7 @@ remoteContent data createHtml =
             createHtml a
 
         Failure err ->
-            text "some error :("
+            errorView (toString err)
 
 
 remoteConentStories : StoryList -> Time.Time -> Html Msg

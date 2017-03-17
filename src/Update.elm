@@ -57,7 +57,10 @@ init location =
 
 fetchStories : StoryType -> Int -> List (Cmd Msg)
 fetchStories storyType page =
-    [ Http.send (FetchHNStories storyType) <| Api.fetchStories storyType ((page - 1) * 30) ]
+    Api.fetchStories storyType ((page - 1) * 30)
+        |> RemoteData.sendRequest
+        |> Cmd.map (FetchHNStories storyType)
+        |> List.singleton
 
 
 cmdsForRoute : Route -> List (Cmd Msg)
@@ -148,20 +151,17 @@ update msg model =
         RouteUpdate route ->
             { model | route = route } ! cmdsForRoute route
 
-        FetchHNStories storyType (Ok stories) ->
+        FetchHNStories storyType response ->
             case model.route of
                 StoriesPageRoute _ data ->
                     let
                         newRoute =
-                            StoriesPageRoute storyType { data | stories = Success stories }
+                            StoriesPageRoute storyType { data | stories = response }
                     in
                         { model | route = newRoute } ! []
 
                 _ ->
                     model ! []
-
-        FetchHNStories route (Err err) ->
-            logErr model err
 
         FetchHNStory (Ok story) ->
             case model.route of

@@ -47,7 +47,7 @@ type Route
 
 type Msg
     = NoOp
-    | FetchHNStories StoryType (Result Http.Error (List Story))
+    | FetchHNStories StoryType (WebData (List Story))
     | FetchHNStory (Result Http.Error Story)
     | FetchHNUser (Result Http.Error User)
     | CurrentTime Time

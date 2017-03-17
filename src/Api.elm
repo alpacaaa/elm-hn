@@ -105,6 +105,7 @@ commentFields =
     ]
 
 
+runQuery : Query -> Decode.Decoder a -> String -> Http.Request a
 runQuery query decoder returnField =
     let
         queryStr =
