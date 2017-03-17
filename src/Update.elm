@@ -136,20 +136,6 @@ getPageHelper ( key, val ) =
         Nothing
 
 
-updateRouteModelWithStories :
-    Model
-    -> StoryList
-    -> List Story
-    -> (StoryList -> Route)
-    -> ( Model, Cmd a )
-updateRouteModelWithStories model data stories route =
-    let
-        newRoute =
-            route { data | stories = Success stories }
-    in
-        { model | route = newRoute } ! []
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -165,7 +151,11 @@ update msg model =
         FetchHNStories storyType (Ok stories) ->
             case model.route of
                 StoriesPageRoute _ data ->
-                    updateRouteModelWithStories model data stories (StoriesPageRoute storyType)
+                    let
+                        newRoute =
+                            StoriesPageRoute storyType { data | stories = Success stories }
+                    in
+                        { model | route = newRoute } ! []
 
                 _ ->
                     model ! []
