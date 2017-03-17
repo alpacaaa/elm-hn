@@ -316,19 +316,7 @@ mainContent model =
             }
     in
         case model.route of
-            TopStoriesRoute data ->
-                remoteConentStories data model.now
-
-            NewestStoriesRoute data ->
-                remoteConentStories data model.now
-
-            ShowStoriesRoute data ->
-                remoteConentStories data model.now
-
-            AskStoriesRoute data ->
-                remoteConentStories data model.now
-
-            JobsStoriesRoute data ->
+            StoriesPageRoute storyType data ->
                 remoteConentStories data model.now
 
             StoryRoute { story, collapsedComments } ->
@@ -375,20 +363,8 @@ headerLink activeStoryType config =
 routeToStoryType : Route -> Maybe StoryType
 routeToStoryType route =
     case route of
-        TopStoriesRoute _ ->
-            Just Top
-
-        NewestStoriesRoute _ ->
-            Just Newest
-
-        ShowStoriesRoute _ ->
-            Just Show
-
-        AskStoriesRoute _ ->
-            Just Ask
-
-        JobsStoriesRoute _ ->
-            Just Jobs
+        StoriesPageRoute storyType _ ->
+            Just storyType
 
         StoryRoute _ ->
             Nothing

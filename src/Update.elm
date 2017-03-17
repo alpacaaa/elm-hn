@@ -63,20 +63,8 @@ fetchStories storyType page =
 cmdsForRoute : Route -> List (Cmd Msg)
 cmdsForRoute route =
     case route of
-        TopStoriesRoute { page } ->
-            fetchStories Top page
-
-        NewestStoriesRoute { page } ->
-            fetchStories Newest page
-
-        ShowStoriesRoute { page } ->
-            fetchStories Show page
-
-        AskStoriesRoute { page } ->
-            fetchStories Ask page
-
-        JobsStoriesRoute { page } ->
-            fetchStories Jobs page
+        StoriesPageRoute storyType { page } ->
+            fetchStories storyType page
 
         StoryRoute { id } ->
             [ Http.send FetchHNStory <| Api.fetchStory id ]
@@ -101,19 +89,19 @@ routeByLocation loc =
     in
         case parsed.path of
             [] ->
-                TopStoriesRoute <| storiesDict ()
+                StoriesPageRoute Top <| storiesDict ()
 
             "newest" :: [] ->
-                NewestStoriesRoute <| storiesDict ()
+                StoriesPageRoute Newest <| storiesDict ()
 
             "show" :: [] ->
-                ShowStoriesRoute <| storiesDict ()
+                StoriesPageRoute Show <| storiesDict ()
 
             "ask" :: [] ->
-                AskStoriesRoute <| storiesDict ()
+                StoriesPageRoute Ask <| storiesDict ()
 
             "jobs" :: [] ->
-                JobsStoriesRoute <| storiesDict ()
+                StoriesPageRoute Jobs <| storiesDict ()
 
             "story" :: id :: [] ->
                 StoryRoute
@@ -175,46 +163,12 @@ update msg model =
             { model | route = route } ! cmdsForRoute route
 
         FetchHNStories storyType (Ok stories) ->
-            case storyType of
-                Top ->
-                    case model.route of
-                        TopStoriesRoute data ->
-                            updateRouteModelWithStories model data stories TopStoriesRoute
+            case model.route of
+                StoriesPageRoute _ data ->
+                    updateRouteModelWithStories model data stories (StoriesPageRoute storyType)
 
-                        _ ->
-                            model ! []
-
-                Newest ->
-                    case model.route of
-                        NewestStoriesRoute data ->
-                            updateRouteModelWithStories model data stories NewestStoriesRoute
-
-                        _ ->
-                            model ! []
-
-                Show ->
-                    case model.route of
-                        ShowStoriesRoute data ->
-                            updateRouteModelWithStories model data stories ShowStoriesRoute
-
-                        _ ->
-                            model ! []
-
-                Ask ->
-                    case model.route of
-                        AskStoriesRoute data ->
-                            updateRouteModelWithStories model data stories AskStoriesRoute
-
-                        _ ->
-                            model ! []
-
-                Jobs ->
-                    case model.route of
-                        JobsStoriesRoute data ->
-                            updateRouteModelWithStories model data stories JobsStoriesRoute
-
-                        _ ->
-                            model ! []
+                _ ->
+                    model ! []
 
         FetchHNStories route (Err err) ->
             logErr model err
