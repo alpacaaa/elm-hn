@@ -43,9 +43,6 @@ init location =
         currentRoute =
             routeByLocation location
 
-        defaultModel =
-            { now = 0 }
-
         initialModel =
             { now = 0, route = currentRoute }
 
@@ -93,26 +90,27 @@ routeByLocation loc =
         parsed =
             Url.parse loc.href
 
-        storiesDict () =
-            { page = (getPage parsed.query)
-            , stories = Loading
-            }
+        storiesRoute storyType =
+            StoriesPageRoute storyType
+                { page = (getPage parsed.query)
+                , stories = Loading
+                }
     in
         case parsed.path of
             [] ->
-                StoriesPageRoute Top <| storiesDict ()
+                storiesRoute Top
 
             "newest" :: [] ->
-                StoriesPageRoute Newest <| storiesDict ()
+                storiesRoute Newest
 
             "show" :: [] ->
-                StoriesPageRoute Show <| storiesDict ()
+                storiesRoute Show
 
             "ask" :: [] ->
-                StoriesPageRoute Ask <| storiesDict ()
+                storiesRoute Ask
 
             "jobs" :: [] ->
-                StoriesPageRoute Jobs <| storiesDict ()
+                storiesRoute Jobs
 
             "story" :: id :: [] ->
                 StoryRoute
