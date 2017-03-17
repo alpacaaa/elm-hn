@@ -55,12 +55,18 @@ init location =
         initialModel ! (currentTime :: cmds)
 
 
+createRequest : (WebData a -> Msg) -> Http.Request a -> List (Cmd Msg)
+createRequest msg apiCall =
+    apiCall
+        |> RemoteData.sendRequest
+        |> Cmd.map msg
+        |> List.singleton
+
+
 fetchStories : StoryType -> Int -> List (Cmd Msg)
 fetchStories storyType page =
     Api.fetchStories storyType ((page - 1) * 30)
-        |> RemoteData.sendRequest
-        |> Cmd.map (FetchHNStories storyType)
-        |> List.singleton
+        |> createRequest (FetchHNStories storyType)
 
 
 cmdsForRoute : Route -> List (Cmd Msg)
@@ -71,15 +77,11 @@ cmdsForRoute route =
 
         StoryRoute { id } ->
             Api.fetchStory id
-                |> RemoteData.sendRequest
-                |> Cmd.map FetchHNStory
-                |> List.singleton
+                |> createRequest FetchHNStory
 
         UserRoute { id } ->
             Api.fetchUser id
-                |> RemoteData.sendRequest
-                |> Cmd.map FetchHNUser
-                |> List.singleton
+                |> createRequest FetchHNUser
 
         NotFoundRoute ->
             []
