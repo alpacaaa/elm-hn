@@ -47,7 +47,7 @@ init location =
             { now = 0 }
 
         initialModel =
-            { now = 0, route = currentRoute, error = Nothing }
+            { now = 0, route = currentRoute }
 
         cmds =
             cmdsForRoute currentRoute

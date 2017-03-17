@@ -329,16 +329,6 @@ mainContent model =
                 notFoundView
 
 
-renderAppOrError : Model -> Html Msg
-renderAppOrError model =
-    case model.error of
-        Nothing ->
-            mainContent model
-
-        Just err ->
-            errorView err
-
-
 headerLink : Maybe StoryType -> HeaderLinkConfig -> Html Msg
 headerLink activeStoryType config =
     let
@@ -435,7 +425,7 @@ view model =
         [ div [ class "App__wrap" ]
             [ header model.route
             , div [ class "App__content" ]
-                [ renderAppOrError model ]
+                [ mainContent model ]
             , div [ class "App__footer" ]
                 [ a [ Html.Attributes.href "https://github.com/alpacaaa/elm-hn" ]
                     [ text "elm-hn" ]
