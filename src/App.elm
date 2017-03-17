@@ -12,6 +12,7 @@ import Types exposing (..)
 import UserProfile
 import Stories
 import Utils exposing (formatTime, innerHtml, maybeRender)
+import Maybe.Extra as MaybeX
 
 
 type alias HeaderLinkConfig =
@@ -103,8 +104,7 @@ storyTitle story =
             Maybe.withDefault (linkToStory story.id) story.url
 
         link =
-            Maybe.map (\external -> [ Html.Attributes.href external ]) story.url
-                |> Maybe.withDefault (href url)
+            MaybeX.unwrap (href url) (\external -> [ Html.Attributes.href external ]) story.url
     in
         a link [ text story.title ]
 
@@ -336,8 +336,7 @@ headerLink activeStoryType config =
             href config.path
 
         isActive =
-            Maybe.map ((==) config.storyType) activeStoryType
-                |> Maybe.withDefault False
+            MaybeX.unwrap False ((==) config.storyType) activeStoryType
 
         classes =
             config.class

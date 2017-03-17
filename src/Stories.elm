@@ -8,6 +8,7 @@ import Time exposing (Time)
 import Erl as Url
 import Types exposing (..)
 import Utils exposing (maybeRender, formatTime)
+import Maybe.Extra as MaybeX
 
 
 type alias StoriesContext =
@@ -91,8 +92,7 @@ storyTitle story =
             Maybe.withDefault (linkToStory story.id) story.url
 
         link =
-            Maybe.map (\external -> [ Html.Attributes.href external ]) story.url
-                |> Maybe.withDefault (href url)
+            MaybeX.unwrap (href url) (\external -> [ Html.Attributes.href external ]) story.url
     in
         a link [ text story.title ]
 

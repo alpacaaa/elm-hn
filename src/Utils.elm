@@ -7,6 +7,7 @@ import Html
 import Html.Attributes
 import Json.Encode
 import Types
+import Maybe.Extra as MaybeX
 
 
 formatTime : Time.Time -> Int -> String
@@ -28,5 +29,4 @@ innerHtml content =
 
 maybeRender : (a -> Html.Html b) -> Maybe a -> Html.Html b
 maybeRender fn maybeValue =
-    Maybe.map fn maybeValue
-        |> Maybe.withDefault (Html.text "")
+    MaybeX.unwrap (Html.text "") fn maybeValue
