@@ -65,8 +65,8 @@ createRequest msg apiCall =
 
 fetchStories : StoryType -> Int -> List (Cmd Msg)
 fetchStories storyType page =
-    Api.fetchStories storyType ((page - 1) * 30)
-        |> createRequest (FetchHNStories storyType)
+    createRequest (FetchHNStories storyType) <|
+        Api.fetchStories storyType ((page - 1) * 30)
 
 
 cmdsForRoute : Route -> List (Cmd Msg)
@@ -76,12 +76,12 @@ cmdsForRoute route =
             fetchStories storyType page
 
         StoryRoute { id } ->
-            Api.fetchStory id
-                |> createRequest FetchHNStory
+            createRequest FetchHNStory <|
+                Api.fetchStory id
 
         UserRoute { id } ->
-            Api.fetchUser id
-                |> createRequest FetchHNUser
+            createRequest FetchHNUser <|
+                Api.fetchUser id
 
         NotFoundRoute ->
             []
