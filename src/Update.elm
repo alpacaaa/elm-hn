@@ -70,10 +70,16 @@ cmdsForRoute route =
             fetchStories storyType page
 
         StoryRoute { id } ->
-            [ Http.send FetchHNStory <| Api.fetchStory id ]
+            Api.fetchStory id
+                |> RemoteData.sendRequest
+                |> Cmd.map FetchHNStory
+                |> List.singleton
 
         UserRoute { id } ->
-            [ Http.send FetchHNUser <| Api.fetchUser id ]
+            Api.fetchUser id
+                |> RemoteData.sendRequest
+                |> Cmd.map FetchHNUser
+                |> List.singleton
 
         NotFoundRoute ->
             []
@@ -163,35 +169,29 @@ update msg model =
                 _ ->
                     model ! []
 
-        FetchHNStory (Ok story) ->
+        FetchHNStory response ->
             case model.route of
                 StoryRoute data ->
                     let
                         newRoute =
-                            StoryRoute { data | story = (Success story) }
+                            StoryRoute { data | story = response }
                     in
                         { model | route = newRoute } ! []
 
                 _ ->
                     model ! []
 
-        FetchHNStory (Err err) ->
-            logErr model err
-
-        FetchHNUser (Ok user) ->
+        FetchHNUser response ->
             case model.route of
                 UserRoute data ->
                     let
                         newRoute =
-                            UserRoute { data | user = (Success user) }
+                            UserRoute { data | user = response }
                     in
                         { model | route = newRoute } ! []
 
                 _ ->
                     model ! []
-
-        FetchHNUser (Err err) ->
-            logErr model err
 
         Go path ->
             ( model, Navigation.newUrl path )
@@ -215,12 +215,3 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
-
-
-logErr : Model -> Http.Error -> ( Model, Cmd a )
-logErr model err =
-    let
-        _ =
-            Debug.log "Doh" err
-    in
-        { model | error = Just (toString err) } ! []

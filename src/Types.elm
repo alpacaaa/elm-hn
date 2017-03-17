@@ -48,8 +48,8 @@ type Route
 type Msg
     = NoOp
     | FetchHNStories StoryType (WebData (List Story))
-    | FetchHNStory (Result Http.Error Story)
-    | FetchHNUser (Result Http.Error User)
+    | FetchHNStory (WebData Story)
+    | FetchHNUser (WebData User)
     | CurrentTime Time
     | RouteUpdate Route
     | Go String
