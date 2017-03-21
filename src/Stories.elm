@@ -2,12 +2,10 @@ module Stories exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (class)
-import Html.Events
-import Json.Decode
 import Time exposing (Time)
 import Erl as Url
 import Types exposing (..)
-import Utils exposing (maybeRender, formatTime)
+import Utils exposing (maybeRender, formatTime, href)
 import Maybe.Extra as MaybeX
 
 
@@ -73,16 +71,6 @@ linkToStory id =
 linkToUser : String -> String
 linkToUser id =
     "/user/" ++ id
-
-
-href : String -> List (Html.Attribute Msg)
-href path =
-    [ Html.Attributes.href path
-    , Html.Events.onWithOptions
-        "click"
-        { stopPropagation = True, preventDefault = True }
-        (Json.Decode.map (\_ -> Go path) Json.Decode.value)
-    ]
 
 
 storyTitle : Story -> Html Msg

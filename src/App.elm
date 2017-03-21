@@ -11,7 +11,7 @@ import Time
 import Types exposing (..)
 import UserProfile
 import Stories
-import Utils exposing (formatTime, innerHtml, maybeRender)
+import Utils exposing (formatTime, innerHtml, maybeRender, href)
 import Maybe.Extra as MaybeX
 
 
@@ -21,16 +21,6 @@ type alias HeaderLinkConfig =
     , text : String
     , class : String
     }
-
-
-href : String -> List (Html.Attribute Msg)
-href path =
-    [ Html.Attributes.href path
-    , Html.Events.onWithOptions
-        "click"
-        { stopPropagation = True, preventDefault = True }
-        (Json.Decode.map (\_ -> Go path) Json.Decode.value)
-    ]
 
 
 renderHost : String -> Html Msg
