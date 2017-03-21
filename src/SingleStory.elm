@@ -26,14 +26,6 @@ page ctx story =
         ]
 
 
-itemDetail : SingleStoryContext -> Story -> Html Msg
-itemDetail ctx story =
-    div [ class "Item" ]
-        [ div [ class "Item__content" ] <| renderStory ctx story
-        , div [ class "Item__kids" ] <| commentsTree ctx story
-        ]
-
-
 renderStory : { a | now : Time } -> Story -> List (Html Msg)
 renderStory { now } story =
     [ div [ class "Item__title" ]
@@ -55,6 +47,82 @@ renderStory { now } story =
     , maybeRender (\text -> div [ class "Item__text" ] [ div [ innerHtml text ] [] ]) story.text
     , maybeRender renderPoll story.poll
     ]
+
+
+itemDetail : SingleStoryContext -> Story -> Html Msg
+itemDetail ctx story =
+    div [ class "Item" ]
+        [ div [ class "Item__content" ] <| renderStory ctx story
+        , div [ class "Item__kids" ] <| commentsTree ctx story
+        ]
+
+
+renderHost : String -> Html Msg
+renderHost url =
+    let
+        hostParts =
+            Url.extractHost url
+                |> String.split "."
+
+        host =
+            String.join "." <| List.drop (List.length hostParts - 2) hostParts
+    in
+        if String.length host > 0 then
+            span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
+        else
+            text ""
+
+
+linkToStory : String -> String
+linkToStory id =
+    "/story/" ++ id
+
+
+linkToUser : String -> String
+linkToUser id =
+    "/user/" ++ id
+
+
+storyTitle : Story -> Html Msg
+storyTitle story =
+    let
+        url =
+            Maybe.withDefault (linkToStory story.id) story.url
+
+        link =
+            Maybe.unwrap (href url) (\external -> [ Html.Attributes.href external ]) story.url
+    in
+        a link [ text story.title ]
+
+
+collapsible : String -> Collapsible -> Html Msg
+collapsible id collapsed =
+    let
+        symbol =
+            case collapsed of
+                Open ->
+                    "–"
+
+                Closed ->
+                    "+"
+
+        wrapped =
+            "[" ++ symbol ++ "]"
+    in
+        span [ class "Comment__collapse", onClick <| ToggleCollapse id collapsed ]
+            [ text wrapped ]
+
+
+renderCommentsCount : String -> Int -> Html Msg
+renderCommentsCount id comments =
+    let
+        str =
+            if comments == 0 then
+                "discuss"
+            else
+                toString comments ++ " comments"
+    in
+        a (href (linkToStory id)) [ text str ]
 
 
 commentsTree : SingleStoryContext -> Story -> List (Html Msg)
@@ -109,87 +177,6 @@ singleComment ctx level comment =
             ]
 
 
-renderHost : String -> Html Msg
-renderHost url =
-    let
-        hostParts =
-            Url.extractHost url
-                |> String.split "."
-
-        host =
-            String.join "." <| List.drop (List.length hostParts - 2) hostParts
-    in
-        if String.length host > 0 then
-            span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
-        else
-            text ""
-
-
-linkToStory : String -> String
-linkToStory id =
-    "/story/" ++ id
-
-
-linkToUser : String -> String
-linkToUser id =
-    "/user/" ++ id
-
-
-renderCommentsCount : String -> Int -> Html Msg
-renderCommentsCount id comments =
-    let
-        str =
-            if comments == 0 then
-                "discuss"
-            else
-                toString comments ++ " comments"
-    in
-        a (href (linkToStory id)) [ text str ]
-
-
-renderPoll : List PollOption -> Html Msg
-renderPoll poll =
-    div [ class "Item__poll" ] <| List.map renderPollOption poll
-
-
-renderPollOption : PollOption -> Html Msg
-renderPollOption option =
-    div [ class "PollOption" ]
-        [ div [ class "PollOption__text", innerHtml option.text ] []
-        , div [ class "PollOption__score" ] [ text <| (toString option.score) ++ " points" ]
-        ]
-
-
-storyTitle : Story -> Html Msg
-storyTitle story =
-    let
-        url =
-            Maybe.withDefault (linkToStory story.id) story.url
-
-        link =
-            Maybe.unwrap (href url) (\external -> [ Html.Attributes.href external ]) story.url
-    in
-        a link [ text story.title ]
-
-
-collapsible : String -> Collapsible -> Html Msg
-collapsible id collapsed =
-    let
-        symbol =
-            case collapsed of
-                Open ->
-                    "–"
-
-                Closed ->
-                    "+"
-
-        wrapped =
-            "[" ++ symbol ++ "]"
-    in
-        span [ class "Comment__collapse", onClick <| ToggleCollapse id collapsed ]
-            [ text wrapped ]
-
-
 commentMeta : SingleStoryContext -> Comment -> Collapsible -> Html Msg
 commentMeta { now } comment collapsed =
     let
@@ -219,3 +206,16 @@ commentText comment =
                 [ a [ Html.Attributes.href link ] [ text "reply" ]
                 ]
             ]
+
+
+renderPoll : List PollOption -> Html Msg
+renderPoll poll =
+    div [ class "Item__poll" ] <| List.map renderPollOption poll
+
+
+renderPollOption : PollOption -> Html Msg
+renderPollOption option =
+    div [ class "PollOption" ]
+        [ div [ class "PollOption__text", innerHtml option.text ] []
+        , div [ class "PollOption__score" ] [ text <| (toString option.score) ++ " points" ]
+        ]
