@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, href)
 import Time exposing (Time)
 import Types exposing (..)
 import Utils exposing (formatTime, innerHtml)
-import Maybe.Extra as MaybeX
+import Maybe.Extra as Maybe
 
 
 aboutSection : String -> List (Html Msg)
@@ -42,7 +42,7 @@ page : Time -> User -> Html Msg
 page now user =
     let
         about =
-            MaybeX.unwrap [ text "" ] aboutSection user.about
+            Maybe.unwrap [ text "" ] aboutSection user.about
                 |> p []
                 |> List.singleton
     in

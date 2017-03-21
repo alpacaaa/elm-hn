@@ -3,7 +3,7 @@ module App exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (class, style, src, width, height, alt)
 import RemoteData exposing (RemoteData(..), WebData)
-import Time
+import Time exposing (Time)
 import Types exposing (..)
 import UserProfile
 import SingleStory
@@ -71,7 +71,7 @@ remoteContent data createHtml =
             errorView (toString err)
 
 
-remoteConentStories : StoryList -> Time.Time -> Html Msg
+remoteConentStories : StoryList -> Time -> Html Msg
 remoteConentStories { page, stories } now =
     remoteContent stories (Stories.page { now = now, page = page })
 

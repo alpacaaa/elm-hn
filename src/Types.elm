@@ -3,7 +3,6 @@ module Types
         ( Model
         , Msg(..)
         , Route(..)
-        , Context
         , Story
         , Comment
         , User
@@ -23,13 +22,6 @@ import RemoteData exposing (WebData)
 type alias Model =
     { now : Time
     , route : Route
-    }
-
-
-type alias Context =
-    { now : Time
-    , collapsedComments : Set.Set String
-    , page : Int
     }
 
 

@@ -3,10 +3,7 @@ module Stories exposing (page)
 import Html exposing (..)
 import Html.Attributes exposing (class)
 import Time exposing (Time)
-import Erl as Url
 import Types exposing (..)
-import Utils exposing (maybeRender, formatTime, href)
-import Maybe.Extra as MaybeX
 import SingleStory
 
 

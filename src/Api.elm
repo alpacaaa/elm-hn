@@ -10,7 +10,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline as Pipeline
 import Types exposing (..)
-import Maybe.Extra as MaybeX
+import Maybe.Extra as Maybe
 
 
 type alias Field =
@@ -129,7 +129,7 @@ fetchStories storyType offset =
             storiesQuery storyType offset
 
         skipNull =
-            Decode.map MaybeX.values
+            Decode.map Maybe.values
 
         decoder =
             Decode.list (Decode.nullable storyDecoder)
