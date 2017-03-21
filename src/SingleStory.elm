@@ -1,4 +1,4 @@
-module SingleStory exposing (page)
+module SingleStory exposing (page, renderStory)
 
 import Html exposing (..)
 import Html.Attributes exposing (class)
@@ -29,13 +29,13 @@ page ctx story =
 itemDetail : SingleStoryContext -> Story -> Html Msg
 itemDetail ctx story =
     div [ class "Item" ]
-        [ div [ class "Item__content" ] <| itemContent ctx story
+        [ div [ class "Item__content" ] <| renderStory ctx story
         , div [ class "Item__kids" ] <| commentsTree ctx story
         ]
 
 
-itemContent : SingleStoryContext -> Story -> List (Html Msg)
-itemContent { now } story =
+renderStory : { a | now : Time } -> Story -> List (Html Msg)
+renderStory { now } story =
     [ div [ class "Item__title" ]
         [ storyTitle story
         , text " "

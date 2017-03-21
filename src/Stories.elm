@@ -7,6 +7,7 @@ import Erl as Url
 import Types exposing (..)
 import Utils exposing (maybeRender, formatTime, href)
 import Maybe.Extra as MaybeX
+import SingleStory
 
 
 type alias StoriesContext =
@@ -26,75 +27,7 @@ listStartAttribute page =
 
 listItemNews : StoriesContext -> Story -> Html Msg
 listItemNews ctx story =
-    li [ class "ListItem" ] <| itemContent ctx story
-
-
-itemContent : StoriesContext -> Story -> List (Html Msg)
-itemContent { now } story =
-    [ div [ class "Item__title" ]
-        [ storyTitle story
-        , text " "
-        , maybeRender renderHost story.url
-        ]
-    , div [ class "Item__meta" ]
-        [ span [ class "Item__score" ] [ text <| (toString story.score) ++ " points" ]
-        , text " "
-        , span [ class "Item__by" ]
-            [ a (href (linkToUser story.user)) [ text story.user ]
-            ]
-        , text " "
-        , time [ class "Item__time" ] [ text <| formatTime now story.time ]
-        , maybeRender (\_ -> text " | ") story.commentsCount
-        , maybeRender (renderCommentsCount story.id) story.commentsCount
-        ]
-    ]
-
-
-renderHost : String -> Html.Html Msg
-renderHost url =
-    let
-        hostParts =
-            Url.extractHost url
-                |> String.split "."
-
-        host =
-            String.join "." <| List.drop (List.length hostParts - 2) hostParts
-    in
-        span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
-
-
-linkToStory : String -> String
-linkToStory id =
-    "/story/" ++ id
-
-
-linkToUser : String -> String
-linkToUser id =
-    "/user/" ++ id
-
-
-storyTitle : Story -> Html Msg
-storyTitle story =
-    let
-        url =
-            Maybe.withDefault (linkToStory story.id) story.url
-
-        link =
-            MaybeX.unwrap (href url) (\external -> [ Html.Attributes.href external ]) story.url
-    in
-        a link [ text story.title ]
-
-
-renderCommentsCount : String -> Int -> Html Msg
-renderCommentsCount id comments =
-    let
-        str =
-            if comments == 0 then
-                "discuss"
-            else
-                toString comments ++ " comments"
-    in
-        a (href (linkToStory id)) [ text str ]
+    li [ class "ListItem" ] <| SingleStory.renderStory ctx story
 
 
 paginator : Int -> Html Msg
