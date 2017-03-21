@@ -8,6 +8,25 @@ import Utils exposing (formatTime, innerHtml)
 import Maybe.Extra as Maybe
 
 
+page : Time -> User -> Html Msg
+page now user =
+    let
+        about =
+            Maybe.unwrap [ text "" ] aboutSection user.about
+                |> p []
+                |> List.singleton
+    in
+        div [ class "Comment__text UserProfile" ]
+            [ h4 [] [ text user.id ]
+            , dl [] <|
+                [ dt [] [ text "Created" ]
+                , dd [] [ text <| formatTime now user.created ]
+                ]
+                    ++ about
+                    ++ links user.id
+            ]
+
+
 aboutSection : String -> List (Html Msg)
 aboutSection about =
     [ dt [] [ text "About" ]
@@ -35,23 +54,4 @@ makeLink id ( slug, title ) =
     in
         div []
             [ a [ href url ] [ text title ]
-            ]
-
-
-page : Time -> User -> Html Msg
-page now user =
-    let
-        about =
-            Maybe.unwrap [ text "" ] aboutSection user.about
-                |> p []
-                |> List.singleton
-    in
-        div [ class "Comment__text UserProfile" ]
-            [ h4 [] [ text user.id ]
-            , dl [] <|
-                [ dt [] [ text "Created" ]
-                , dd [] [ text <| formatTime now user.created ]
-                ]
-                    ++ about
-                    ++ links user.id
             ]

@@ -13,6 +13,17 @@ type alias StoriesContext =
     }
 
 
+page : StoriesContext -> List Story -> Html Msg
+page ctx stories =
+    div [ class "Items" ]
+        [ ol [ class "Items__list", listStartAttribute ctx.page ] <|
+            List.map
+                (listItemNews ctx)
+                stories
+        , paginator ctx.page
+        ]
+
+
 listStartAttribute : Int -> Html.Attribute a
 listStartAttribute page =
     let
@@ -38,14 +49,3 @@ paginator page =
                 [ a [ Html.Attributes.href next ] [ text "More" ]
                 ]
             ]
-
-
-page : StoriesContext -> List Story -> Html Msg
-page ctx stories =
-    div [ class "Items" ]
-        [ ol [ class "Items__list", listStartAttribute ctx.page ] <|
-            List.map
-                (listItemNews ctx)
-                stories
-        , paginator ctx.page
-        ]
