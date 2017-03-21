@@ -1,4 +1,4 @@
-module Stories exposing (view)
+module Stories exposing (page)
 
 import Html exposing (..)
 import Html.Attributes exposing (class)
@@ -110,8 +110,8 @@ paginator page =
             ]
 
 
-view : StoriesContext -> List Story -> Html Msg
-view ctx stories =
+page : StoriesContext -> List Story -> Html Msg
+page ctx stories =
     div [ class "Items" ]
         [ ol [ class "Items__list", listStartAttribute ctx.page ] <|
             List.map

@@ -9,7 +9,7 @@ import UserProfile
 import SingleStory
 import Stories
 import Utils exposing (formatTime, innerHtml, maybeRender, href)
-import Maybe.Extra as MaybeX
+import Maybe.Extra as Maybe
 
 
 type alias HeaderLinkConfig =
@@ -18,19 +18,6 @@ type alias HeaderLinkConfig =
     , text : String
     , class : String
     }
-
-
-paginator : Int -> Html Msg
-paginator page =
-    let
-        next =
-            "?page=" ++ (toString <| page + 1)
-    in
-        div [ class "Paginator" ]
-            [ span [ class "Paginator__next" ]
-                [ a [ Html.Attributes.href next ] [ text "More" ]
-                ]
-            ]
 
 
 notFoundView : Html Msg
@@ -86,7 +73,7 @@ remoteContent data createHtml =
 
 remoteConentStories : StoryList -> Time.Time -> Html Msg
 remoteConentStories { page, stories } now =
-    remoteContent stories (Stories.view { now = now, page = page })
+    remoteContent stories (Stories.page { now = now, page = page })
 
 
 mainContent : Model -> Html Msg
@@ -112,7 +99,7 @@ headerLink activeStoryType config =
             href config.path
 
         isActive =
-            MaybeX.unwrap False ((==) config.storyType) activeStoryType
+            Maybe.unwrap False ((==) config.storyType) activeStoryType
 
         classes =
             config.class

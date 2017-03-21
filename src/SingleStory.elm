@@ -1,4 +1,4 @@
-module SingleStory exposing (..)
+module SingleStory exposing (page)
 
 import Html exposing (..)
 import Html.Attributes exposing (class)
