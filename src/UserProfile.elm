@@ -2,6 +2,7 @@ module UserProfile exposing (page)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
+import Time exposing (Time)
 import Types exposing (..)
 import Utils exposing (formatTime, innerHtml)
 import Maybe.Extra as MaybeX
@@ -37,8 +38,8 @@ makeLink id ( slug, title ) =
             ]
 
 
-page : Context -> User -> Html Msg
-page { now } user =
+page : Time -> User -> Html Msg
+page now user =
     let
         about =
             MaybeX.unwrap [ text "" ] aboutSection user.about
