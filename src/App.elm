@@ -1,7 +1,7 @@
 module App exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, height, src, style, width)
+import Html.Attributes exposing (alt, class, classList, height, href, src, style, width)
 import Maybe.Extra as Maybe
 import RemoteData exposing (RemoteData(..), WebData)
 import SingleStory
@@ -9,7 +9,7 @@ import Stories
 import Time exposing (Time)
 import Types exposing (..)
 import UserProfile
-import Utils exposing (formatTime, href, innerHtml, maybeRender)
+import Utils exposing (formatTime, innerHtml, maybeRender)
 
 
 type alias HeaderLinkConfig =
@@ -28,9 +28,7 @@ view model =
             , div [ class "App__content" ]
                 [ mainContent model ]
             , div [ class "App__footer" ]
-                [ a [ Html.Attributes.href "https://github.com/alpacaaa/elm-hn" ]
-                    [ text "elm-hn" ]
-                ]
+                [ a [ href "https://github.com/alpacaaa/elm-hn" ] [ text "elm-hn" ] ]
             ]
         ]
 
@@ -81,11 +79,11 @@ header route =
                 |> List.map (headerLink activeStoryType)
                 |> List.intersperse (text " | ")
     in
-    div [ class "App__header" ] <|
+    div [ class "App__header" ]
         [ a [ class "App__homelinkicon" ] []
+        , headerLink activeStoryType elmHn
+        , span [] navLinks
         ]
-            ++ [ headerLink activeStoryType elmHn ]
-            ++ navLinks
 
 
 routeToStoryType : Route -> Maybe StoryType
@@ -108,20 +106,18 @@ headerLink : Maybe StoryType -> HeaderLinkConfig -> Html Msg
 headerLink activeStoryType config =
     let
         link =
-            href config.path
+            Utils.href config.path
 
         isActive =
             Maybe.unwrap False ((==) config.storyType) activeStoryType
 
         classes =
-            config.class
-                ++ (if isActive then
-                        " active"
-                    else
-                        ""
-                   )
+            classList
+                [ ( config.class, True )
+                , ( "active", isActive )
+                ]
     in
-    a (link ++ [ class classes ]) [ text config.text ]
+    a (link ++ [ classes ]) [ text config.text ]
 
 
 mainContent : Model -> Html Msg
@@ -165,16 +161,14 @@ genericView : List (Html Msg) -> Html Msg
 genericView content =
     div [ class "Items" ]
         [ ol [ class "Items__list" ]
-            [ div [ class "Item" ] content
-            ]
+            [ div [ class "Item" ] content ]
         ]
 
 
 notFoundView : Html Msg
 notFoundView =
     genericView
-        [ div [ class "Item__title" ]
-            [ text "Not Found" ]
+        [ div [ class "Item__title" ] [ text "Not Found" ]
         ]
 
 
@@ -190,7 +184,5 @@ errorView : String -> Html Msg
 errorView err =
     genericView
         [ text "Good News! Something blew up ¯\\_(ツ)_/¯ Here's the error."
-        , pre []
-            [ code [] [ text err ]
-            ]
+        , pre [] [ code [] [ text err ] ]
         ]
