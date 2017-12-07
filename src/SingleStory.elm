@@ -2,13 +2,13 @@ module SingleStory exposing (page, renderStory)
 
 import Erl as Url
 import Html exposing (..)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, href)
 import Html.Events exposing (onClick)
 import Maybe.Extra as Maybe
 import Set
 import Time exposing (Time)
 import Types exposing (..)
-import Utils exposing (formatTime, href, innerHtml, maybeRender)
+import Utils exposing (formatTime, innerHtml, maybeRender)
 
 
 type alias SingleStoryContext =
@@ -20,9 +20,7 @@ type alias SingleStoryContext =
 page : SingleStoryContext -> Story -> Html Msg
 page ctx story =
     div [ class "Items" ]
-        [ ol [ class "Items__list" ]
-            [ itemDetail ctx story
-            ]
+        [ ol [ class "Items__list" ] [ itemDetail ctx story ]
         ]
 
 
@@ -37,7 +35,7 @@ renderStory { now } story =
         [ span [ class "Item__score" ] [ text <| toString story.score ++ " points" ]
         , text " "
         , span [ class "Item__by" ]
-            [ a (href (linkToUser story.user)) [ text story.user ]
+            [ a (Utils.href (linkToUser story.user)) [ text story.user ]
             ]
         , text " "
         , time [ class "Item__time" ] [ text <| formatTime now story.time ]
@@ -90,7 +88,7 @@ storyTitle story =
             Maybe.withDefault (linkToStory story.id) story.url
 
         link =
-            Maybe.unwrap (href url) (\external -> [ Html.Attributes.href external ]) story.url
+            Maybe.unwrap (Utils.href url) (\external -> [ href external ]) story.url
     in
     a link [ text story.title ]
 
@@ -109,7 +107,8 @@ collapsible id collapsed =
         wrapped =
             "[" ++ symbol ++ "]"
     in
-    span [ class "Comment__collapse", onClick <| ToggleCollapse id collapsed ]
+    span
+        [ class "Comment__collapse", onClick (ToggleCollapse id collapsed) ]
         [ text wrapped ]
 
 
@@ -122,7 +121,7 @@ renderCommentsCount id comments =
             else
                 toString comments ++ " comments"
     in
-    a (href (linkToStory id)) [ text str ]
+    a (Utils.href (linkToStory id)) [ text str ]
 
 
 commentsTree : SingleStoryContext -> Story -> List (Html Msg)
@@ -186,9 +185,9 @@ commentMeta { now } comment collapsed =
     div [ class "Comment__meta" ]
         [ collapsible comment.id collapsed
         , text " "
-        , a (href (linkToUser comment.user) ++ [ class "Comment__user" ]) [ text comment.user ]
+        , a (Utils.href (linkToUser comment.user) ++ [ class "Comment__user" ]) [ text comment.user ]
         , text " "
-        , a [ Html.Attributes.href link ]
+        , a [ href link ]
             [ time [] [ text <| formatTime now comment.time ]
             ]
         ]
@@ -203,7 +202,7 @@ commentText comment =
     div [ class "Comment__text" ]
         [ div [ innerHtml comment.text ] []
         , p []
-            [ a [ Html.Attributes.href link ] [ text "reply" ]
+            [ a [ href link ] [ text "reply" ]
             ]
         ]
 
