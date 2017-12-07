@@ -1,13 +1,13 @@
-module Update exposing (init, update, subscriptions, onLocationChange)
+module Update exposing (init, onLocationChange, subscriptions, update)
 
-import Time
-import Task
-import Http
-import Set
-import Erl as Url
-import Navigation
-import RemoteData exposing (WebData, RemoteData(..))
 import Api
+import Erl as Url
+import Http
+import Navigation
+import RemoteData exposing (RemoteData(..), WebData)
+import Set
+import Task
+import Time
 import Types exposing (..)
 
 
@@ -31,7 +31,7 @@ toggleCollapseHelper id state comments =
                 Closed ->
                     Set.remove
     in
-        operation id comments
+    operation id comments
 
 
 init : Navigation.Location -> ( Model, Cmd Msg )
@@ -49,7 +49,7 @@ init location =
         cmds =
             cmdsForRoute currentRoute
     in
-        initialModel ! (currentTime :: cmds)
+    initialModel ! (currentTime :: cmds)
 
 
 createRequest : (WebData a -> Msg) -> Http.Request a -> List (Cmd Msg)
@@ -92,41 +92,41 @@ routeByLocation loc =
 
         storiesRoute storyType =
             StoriesPageRoute storyType
-                { page = (getPage parsed.query)
+                { page = getPage parsed.query
                 , stories = Loading
                 }
     in
-        case parsed.path of
-            [] ->
-                storiesRoute Top
+    case parsed.path of
+        [] ->
+            storiesRoute Top
 
-            "newest" :: [] ->
-                storiesRoute Newest
+        "newest" :: [] ->
+            storiesRoute Newest
 
-            "show" :: [] ->
-                storiesRoute Show
+        "show" :: [] ->
+            storiesRoute Show
 
-            "ask" :: [] ->
-                storiesRoute Ask
+        "ask" :: [] ->
+            storiesRoute Ask
 
-            "jobs" :: [] ->
-                storiesRoute Jobs
+        "jobs" :: [] ->
+            storiesRoute Jobs
 
-            "story" :: id :: [] ->
-                StoryRoute
-                    { id = id
-                    , story = Loading
-                    , collapsedComments = Set.empty
-                    }
+        "story" :: id :: [] ->
+            StoryRoute
+                { id = id
+                , story = Loading
+                , collapsedComments = Set.empty
+                }
 
-            "user" :: id :: [] ->
-                UserRoute
-                    { id = id
-                    , user = Loading
-                    }
+        "user" :: id :: [] ->
+            UserRoute
+                { id = id
+                , user = Loading
+                }
 
-            _ ->
-                NotFoundRoute
+        _ ->
+            NotFoundRoute
 
 
 getPage : Url.Query -> Int
@@ -139,7 +139,7 @@ getPage query =
 
 getPageHelper : ( String, String ) -> Maybe Int
 getPageHelper ( key, val ) =
-    if (key == "page") then
+    if key == "page" then
         Result.toMaybe <| String.toInt val
     else
         Nothing
@@ -164,7 +164,7 @@ update msg model =
                         newRoute =
                             StoriesPageRoute storyType { data | stories = response }
                     in
-                        { model | route = newRoute } ! []
+                    { model | route = newRoute } ! []
 
                 _ ->
                     model ! []
@@ -176,7 +176,7 @@ update msg model =
                         newRoute =
                             StoryRoute { data | story = response }
                     in
-                        { model | route = newRoute } ! []
+                    { model | route = newRoute } ! []
 
                 _ ->
                     model ! []
@@ -188,7 +188,7 @@ update msg model =
                         newRoute =
                             UserRoute { data | user = response }
                     in
-                        { model | route = newRoute } ! []
+                    { model | route = newRoute } ! []
 
                 _ ->
                     model ! []
@@ -206,7 +206,7 @@ update msg model =
                         newRoute =
                             StoryRoute { data | collapsedComments = newCollapsed }
                     in
-                        { model | route = newRoute } ! []
+                    { model | route = newRoute } ! []
 
                 _ ->
                     model ! []

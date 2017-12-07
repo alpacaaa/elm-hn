@@ -1,15 +1,15 @@
 module Utils exposing (..)
 
 import Date
-import Time exposing (Time)
 import Date.Distance
 import Html
 import Html.Attributes
-import Json.Encode
 import Html.Events
 import Json.Decode
-import Types exposing (..)
+import Json.Encode
 import Maybe.Extra as Maybe
+import Time exposing (Time)
+import Types exposing (..)
 
 
 formatTime : Time -> Int -> String
@@ -21,7 +21,7 @@ formatTime nowMs ms =
         date =
             Date.fromTime <| toFloat ms * 1000
     in
-        (Date.Distance.inWords date now) ++ " ago"
+    Date.Distance.inWords date now ++ " ago"
 
 
 innerHtml : String -> Html.Attribute Msg

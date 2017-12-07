@@ -7,10 +7,10 @@ module Api
 
 import Http
 import Json.Decode as Decode
-import Json.Encode as Encode
 import Json.Decode.Pipeline as Pipeline
-import Types exposing (..)
+import Json.Encode as Encode
 import Maybe.Extra as Maybe
+import Types exposing (..)
 
 
 type alias Field =
@@ -119,7 +119,7 @@ runQuery query decoder returnField =
         finalDecoder =
             Decode.at [ "data", "hn", returnField ] decoder
     in
-        Http.post "https://www.graphqlhub.com/graphql" jsonBody finalDecoder
+    Http.post "https://www.graphqlhub.com/graphql" jsonBody finalDecoder
 
 
 fetchStories : StoryType -> Int -> Http.Request (List Story)
@@ -136,7 +136,7 @@ fetchStories storyType offset =
                 |> skipNull
                 |> skipDeleted
     in
-        runQuery query decoder (storyTypeString storyType)
+    runQuery query decoder (storyTypeString storyType)
 
 
 fetchStory : String -> Http.Request Story
@@ -158,7 +158,7 @@ fetchKids count =
             else
                 fetchKids (count - 1) :: commentFields
     in
-        field "kids" fields
+    field "kids" fields
 
 
 skipDeleted :
@@ -169,7 +169,7 @@ skipDeleted =
         skip =
             List.filter (\{ deleted, dead } -> not <| deleted || dead)
     in
-        Decode.map skip
+    Decode.map skip
 
 
 storyDecoder : Decode.Decoder Story
@@ -242,7 +242,7 @@ queryToString (Query query) =
                 List.map fieldToString query
                     |> List.foldr (++) ""
         in
-            "{ " ++ str ++ " }"
+        "{ " ++ str ++ " }"
 
 
 fieldToString : Field -> String
@@ -263,7 +263,7 @@ argsToString args =
                 List.map transform args
                     |> List.foldr (++) " "
         in
-            "( " ++ str ++ " )"
+        "( " ++ str ++ " )"
 
 
 storyTypeString : StoryType -> String

@@ -1,15 +1,15 @@
 module App exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style, src, width, height, alt)
+import Html.Attributes exposing (alt, class, height, src, style, width)
+import Maybe.Extra as Maybe
 import RemoteData exposing (RemoteData(..), WebData)
+import SingleStory
+import Stories
 import Time exposing (Time)
 import Types exposing (..)
 import UserProfile
-import SingleStory
-import Stories
-import Utils exposing (formatTime, innerHtml, maybeRender, href)
-import Maybe.Extra as Maybe
+import Utils exposing (formatTime, href, innerHtml, maybeRender)
 
 
 type alias HeaderLinkConfig =
@@ -81,11 +81,11 @@ header route =
                 |> List.map (headerLink activeStoryType)
                 |> List.intersperse (text " | ")
     in
-        div [ class "App__header" ] <|
-            [ a [ class "App__homelinkicon" ] []
-            ]
-                ++ [ headerLink activeStoryType elmHn ]
-                ++ navLinks
+    div [ class "App__header" ] <|
+        [ a [ class "App__homelinkicon" ] []
+        ]
+            ++ [ headerLink activeStoryType elmHn ]
+            ++ navLinks
 
 
 routeToStoryType : Route -> Maybe StoryType
@@ -121,7 +121,7 @@ headerLink activeStoryType config =
                         ""
                    )
     in
-        a (link ++ [ class classes ]) [ text config.text ]
+    a (link ++ [ class classes ]) [ text config.text ]
 
 
 mainContent : Model -> Html Msg

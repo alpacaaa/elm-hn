@@ -1,14 +1,14 @@
 module SingleStory exposing (page, renderStory)
 
+import Erl as Url
 import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import Time exposing (Time)
-import Set
-import Erl as Url
-import Types exposing (..)
-import Utils exposing (formatTime, innerHtml, maybeRender, href)
 import Maybe.Extra as Maybe
+import Set
+import Time exposing (Time)
+import Types exposing (..)
+import Utils exposing (formatTime, href, innerHtml, maybeRender)
 
 
 type alias SingleStoryContext =
@@ -34,7 +34,7 @@ renderStory { now } story =
         , maybeRender renderHost story.url
         ]
     , div [ class "Item__meta" ]
-        [ span [ class "Item__score" ] [ text <| (toString story.score) ++ " points" ]
+        [ span [ class "Item__score" ] [ text <| toString story.score ++ " points" ]
         , text " "
         , span [ class "Item__by" ]
             [ a (href (linkToUser story.user)) [ text story.user ]
@@ -67,10 +67,10 @@ renderHost url =
         host =
             String.join "." <| List.drop (List.length hostParts - 2) hostParts
     in
-        if String.length host > 0 then
-            span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
-        else
-            text ""
+    if String.length host > 0 then
+        span [ class "Item__host" ] [ text <| "(" ++ host ++ ")" ]
+    else
+        text ""
 
 
 linkToStory : String -> String
@@ -92,7 +92,7 @@ storyTitle story =
         link =
             Maybe.unwrap (href url) (\external -> [ Html.Attributes.href external ]) story.url
     in
-        a link [ text story.title ]
+    a link [ text story.title ]
 
 
 collapsible : String -> Collapsible -> Html Msg
@@ -109,8 +109,8 @@ collapsible id collapsed =
         wrapped =
             "[" ++ symbol ++ "]"
     in
-        span [ class "Comment__collapse", onClick <| ToggleCollapse id collapsed ]
-            [ text wrapped ]
+    span [ class "Comment__collapse", onClick <| ToggleCollapse id collapsed ]
+        [ text wrapped ]
 
 
 renderCommentsCount : String -> Int -> Html Msg
@@ -122,7 +122,7 @@ renderCommentsCount id comments =
             else
                 toString comments ++ " comments"
     in
-        a (href (linkToStory id)) [ text str ]
+    a (href (linkToStory id)) [ text str ]
 
 
 commentsTree : SingleStoryContext -> Story -> List (Html Msg)
@@ -168,13 +168,13 @@ singleComment ctx level comment =
             [ "Comment", levelClass, collapsedClass ]
                 |> String.join " "
     in
-        div [ class classes ]
-            [ div [ class "Comment__content" ]
-                [ commentMeta ctx comment collapsed
-                , commentText comment
-                ]
-            , div [ class "Comment__kids" ] <| List.map newLevel comments
+    div [ class classes ]
+        [ div [ class "Comment__content" ]
+            [ commentMeta ctx comment collapsed
+            , commentText comment
             ]
+        , div [ class "Comment__kids" ] <| List.map newLevel comments
+        ]
 
 
 commentMeta : SingleStoryContext -> Comment -> Collapsible -> Html Msg
@@ -183,15 +183,15 @@ commentMeta { now } comment collapsed =
         link =
             "https://news.ycombinator.com/item?id=" ++ comment.id
     in
-        div [ class "Comment__meta" ]
-            [ collapsible comment.id collapsed
-            , text " "
-            , a (href (linkToUser comment.user) ++ [ class "Comment__user" ]) [ text comment.user ]
-            , text " "
-            , a [ Html.Attributes.href link ]
-                [ time [] [ text <| formatTime now comment.time ]
-                ]
+    div [ class "Comment__meta" ]
+        [ collapsible comment.id collapsed
+        , text " "
+        , a (href (linkToUser comment.user) ++ [ class "Comment__user" ]) [ text comment.user ]
+        , text " "
+        , a [ Html.Attributes.href link ]
+            [ time [] [ text <| formatTime now comment.time ]
             ]
+        ]
 
 
 commentText : Comment -> Html Msg
@@ -200,12 +200,12 @@ commentText comment =
         link =
             "https://news.ycombinator.com/reply?id=" ++ comment.id
     in
-        div [ class "Comment__text" ]
-            [ div [ innerHtml comment.text ] []
-            , p []
-                [ a [ Html.Attributes.href link ] [ text "reply" ]
-                ]
+    div [ class "Comment__text" ]
+        [ div [ innerHtml comment.text ] []
+        , p []
+            [ a [ Html.Attributes.href link ] [ text "reply" ]
             ]
+        ]
 
 
 renderPoll : List PollOption -> Html Msg
@@ -217,5 +217,5 @@ renderPollOption : PollOption -> Html Msg
 renderPollOption option =
     div [ class "PollOption" ]
         [ div [ class "PollOption__text", innerHtml option.text ] []
-        , div [ class "PollOption__score" ] [ text <| (toString option.score) ++ " points" ]
+        , div [ class "PollOption__score" ] [ text <| toString option.score ++ " points" ]
         ]

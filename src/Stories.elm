@@ -2,9 +2,9 @@ module Stories exposing (page)
 
 import Html exposing (..)
 import Html.Attributes exposing (class)
+import SingleStory
 import Time exposing (Time)
 import Types exposing (..)
-import SingleStory
 
 
 type alias StoriesContext =
@@ -30,7 +30,7 @@ listStartAttribute page =
         index =
             (page - 1) * 30 + 1
     in
-        Html.Attributes.start index
+    Html.Attributes.start index
 
 
 listItemNews : StoriesContext -> Story -> Html Msg
@@ -44,8 +44,8 @@ paginator page =
         next =
             "?page=" ++ (toString <| page + 1)
     in
-        div [ class "Paginator" ]
-            [ span [ class "Paginator__next" ]
-                [ a [ Html.Attributes.href next ] [ text "More" ]
-                ]
+    div [ class "Paginator" ]
+        [ span [ class "Paginator__next" ]
+            [ a [ Html.Attributes.href next ] [ text "More" ]
             ]
+        ]

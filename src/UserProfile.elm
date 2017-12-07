@@ -2,10 +2,10 @@ module UserProfile exposing (page)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
+import Maybe.Extra as Maybe
 import Time exposing (Time)
 import Types exposing (..)
 import Utils exposing (formatTime, innerHtml)
-import Maybe.Extra as Maybe
 
 
 page : Time -> User -> Html Msg
@@ -16,15 +16,15 @@ page now user =
                 |> p []
                 |> List.singleton
     in
-        div [ class "Comment__text UserProfile" ]
-            [ h4 [] [ text user.id ]
-            , dl [] <|
-                [ dt [] [ text "Created" ]
-                , dd [] [ text <| formatTime now user.created ]
-                ]
-                    ++ about
-                    ++ links user.id
+    div [ class "Comment__text UserProfile" ]
+        [ h4 [] [ text user.id ]
+        , dl [] <|
+            [ dt [] [ text "Created" ]
+            , dd [] [ text <| formatTime now user.created ]
             ]
+                ++ about
+                ++ links user.id
+        ]
 
 
 aboutSection : String -> List (Html Msg)
@@ -52,6 +52,6 @@ makeLink id ( slug, title ) =
         url =
             String.join "" [ "https://news.ycombinator.com/", slug, "?id=", id ]
     in
-        div []
-            [ a [ href url ] [ text title ]
-            ]
+    div []
+        [ a [ href url ] [ text title ]
+        ]

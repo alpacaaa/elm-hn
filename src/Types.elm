@@ -1,22 +1,22 @@
 module Types
     exposing
-        ( Model
+        ( Collapsible(..)
+        , Comment
+        , Kids(..)
+        , Model
         , Msg(..)
+        , PollOption
         , Route(..)
         , Story
-        , Comment
-        , User
-        , Kids(..)
-        , Collapsible(..)
-        , StoryType(..)
         , StoryList
-        , PollOption
+        , StoryType(..)
+        , User
         )
 
-import Set
-import Time exposing (Time)
 import Http
 import RemoteData exposing (WebData)
+import Set
+import Time exposing (Time)
 
 
 type alias Model =

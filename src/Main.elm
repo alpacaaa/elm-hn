@@ -1,9 +1,9 @@
 module Main exposing (..)
 
 import App
+import Navigation
 import Types
 import Update
-import Navigation
 
 
 main : Program Never Types.Model Types.Msg
