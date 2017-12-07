@@ -14,16 +14,15 @@ page now user =
         about =
             Maybe.unwrap [ text "" ] aboutSection user.about
                 |> p []
-                |> List.singleton
     in
     div [ class "Comment__text UserProfile" ]
         [ h4 [] [ text user.id ]
         , dl [] <|
             [ dt [] [ text "Created" ]
             , dd [] [ text <| formatTime now user.created ]
+            , about
+            , span [] (links user.id)
             ]
-                ++ about
-                ++ links user.id
         ]
 
 
@@ -52,6 +51,4 @@ makeLink id ( slug, title ) =
         url =
             String.join "" [ "https://news.ycombinator.com/", slug, "?id=", id ]
     in
-    div []
-        [ a [ href url ] [ text title ]
-        ]
+    div [] [ a [ href url ] [ text title ] ]

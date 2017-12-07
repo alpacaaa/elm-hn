@@ -13,7 +13,7 @@ import Types exposing (..)
 
 onLocationChange : Navigation.Location -> Msg
 onLocationChange loc =
-    RouteUpdate <| routeByLocation loc
+    RouteUpdate (routeByLocation loc)
 
 
 toggleCollapseHelper :
@@ -140,7 +140,7 @@ getPage query =
 getPageHelper : ( String, String ) -> Maybe Int
 getPageHelper ( key, val ) =
     if key == "page" then
-        Result.toMaybe <| String.toInt val
+        Result.toMaybe (String.toInt val)
     else
         Nothing
 
